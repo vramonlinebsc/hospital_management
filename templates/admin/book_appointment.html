@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment - Admin{% endblock %}
+{% block content %}
+<div class="container">
+    <h1><i class="bi bi-plus-circle"></i> Book New Appointment (Admin)</h1>
+    <div class="alert alert-warning">
+        <i class="bi bi-shield-check"></i> <strong>Admin Override:</strong> 
+        You can book appointments even in blocked time slots.
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" id="bookingForm">
+                <div class="mb-3">
+                    <label class="form-label">Patient *</label>
+                    <select name="patient_id" id="patientSelect" class="form-control" required>
+                        <option value="">Select Patient</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.id }}">{{ patient.full_name }} (ID: {{ patient.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Doctor *</label>
+                    <select name="doctor_id" id="doctorSelect" class="form-control" required>
+                        <option value="">Select Doctor</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}" 
+                                data-specialization="{{ doctor.specialization }}"
+                                data-fee="{{ doctor.consultation_fee }}">
+                            Dr. {{ doctor.full_name }} - {{ doctor.specialization }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div id="doctorInfo" class="alert alert-info" style="display:none;">
+                    <p><strong>Doctor:</strong> <span id="doctorName"></span></p>
+                    <p><strong>Specialization:</strong> <span id="doctorSpec"></span></p>
+                    <p><strong>Fee:</strong> ₹<span id="doctorFee"></span></p>
+                </div>
+                
+                <!-- Calendar Section -->
+                <div id="calendarSection" style="display:none;">
+                    <h5>Select Appointment Time</h5>
+                    <div id="calendar" class="mb-3"></div>
+                    
+                    <style>
+                        #calendar { max-width: 100%; margin: 0 0 1rem 0; }
+                        .fc .fc-bg { background: transparent; }
+                        /* Green for available */
+                        .fc-available-slot { background-color: rgba(40, 167, 69, 0.15) !important; }
+                        /* Orange for blocked (but admin can override) */
+                        .fc-blocked-slot { 
+                            background-image: repeating-linear-gradient(45deg,
+                                rgba(255, 165, 0, 0.18) 0,
+                                rgba(255, 165, 0, 0.18) 6px,
+                                rgba(255, 165, 0, 0.05) 6px,
+                                rgba(255, 165, 0, 0.05) 12px);
+                        }
+                    </style>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Selected Date *</label>
+                    <input type="date" name="appointment_date" id="dateInput" 
+                           class="form-control" required readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Selected Time *</label>
+                    <input type="time" name="appointment_time" id="timeInput" 
+                           class="form-control" required readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Reason for Visit</label>
+                    <textarea name="reason" class="form-control" rows="3" 
+                              placeholder="Enter reason for appointment..."></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin.appointments') }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success" id="submitBtn" disabled>
+                        <i class="bi bi-check-circle"></i> Book Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const doctorSelect = document.getElementById('doctorSelect');
+    const calendarSection = document.getElementById('calendarSection');
+    const doctorInfo = document.getElementById('doctorInfo');
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    let calendar = null;
+    let currentDoctorId = null;
+    
+    // When doctor is selected
+    doctorSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        currentDoctorId = this.value;
+        
+        if (currentDoctorId) {
+            // Show doctor info
+            document.getElementById('doctorName').textContent = selectedOption.text.split(' - ')[0];
+            document.getElementById('doctorSpec').textContent = selectedOption.dataset.specialization;
+            document.getElementById('doctorFee').textContent = selectedOption.dataset.fee;
+            doctorInfo.style.display = 'block';
+            
+            // Load calendar
+            loadCalendar(currentDoctorId);
+            calendarSection.style.display = 'block';
+        } else {
+            doctorInfo.style.display = 'none';
+            calendarSection.style.display = 'none';
+        }
+    });
+    
+    function loadCalendar(doctorId) {
+        // Fetch doctor availability via API (you'll need to create this endpoint)
+        fetch(`/api/doctor/${doctorId}/availability`)
+            .then(response => response.json())
+            .then(data => {
+                renderCalendar(data.availability, data.appointments);
+            })
+            .catch(error => {
+                console.error('Error loading availability:', error);
+                renderCalendar([], []); // Show calendar anyway (admin override)
+            });
+    }
+    
+    function renderCalendar(availability, bookedSlots) {
+        const calendarEl = document.getElementById('calendar');
+        
+        if (calendar) {
+            calendar.destroy();
+        }
+        
+        // Build events from availability (green background)
+        const availEvents = availability.map(a => ({
+            start: a.date + 'T' + a.start_time,
+            end: a.date + 'T' + a.end_time,
+            display: 'background',
+            className: 'fc-available-slot'
+        }));
+        
+        // Build events from booked appointments (to show as busy)
+        const bookedEvents = bookedSlots.map(apt => ({
+            start: apt.date + 'T' + apt.time,
+            end: apt.date + 'T' + apt.end_time, // Assume 30 min slots
+            display: 'background',
+            className: 'fc-blocked-slot',
+            title: 'Booked (Override allowed)'
+        }));
+        
+        const allEvents = [...availEvents, ...bookedEvents];
+        
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            initialDate: new Date(),
+            allDaySlot: false,
+            slotMinTime: '07:00:00',
+            slotMaxTime: '20:00:00',
+            nowIndicator: true,
+            selectable: true,
+            selectMirror: true,
+            height: 'auto',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'timeGridWeek,timeGridDay'
+            },
+            events: allEvents,
+            select: function(info) {
+                // Admin can select ANY time (override power)
+                dateInput.value = info.startStr.split('T')[0];
+                timeInput.value = info.startStr.split('T')[1].slice(0, 5);
+                submitBtn.disabled = false;
+                
+                // Show warning if slot is blocked
+                const isBlocked = bookedSlots.some(apt => 
+                    apt.date === dateInput.value && 
+                    apt.time.slice(0, 5) === timeInput.value
+                );
+                
+                if (isBlocked) {
+                    alert('⚠️ This slot is already booked. Admin override: You can still book it.');
+                }
+            }
+        });
+        
+        calendar.render();
+    }
+});
+</script>
+{% endblock %}

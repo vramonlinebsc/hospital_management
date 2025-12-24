@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment - Patient{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>Book Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p><strong>Doctor:</strong> Dr. {{ doctor.full_name }}</p>
+                        <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                        <p><strong>Fee:</strong> ₹{{ doctor.consultation_fee }}</p>
+                    </div>
+                    <form method="POST">
+                        <!-- Weekly calendar view for picking a slot -->
+                        <div id="calendar" class="mb-3"></div>
+                        <style>
+                            /* small sizing tweak */
+                            #calendar {
+                                max-width: 100%;
+                                margin: 0 0 1rem 0;
+                            }
+
+                            .fc .fc-bg {
+                                background: transparent;
+                            }
+                        </style>
+
+                        <style>
+                            /* small sizing tweak */
+                            #calendar {
+                                max-width: 100%;
+                                margin: 0 0 1rem 0;
+                            }
+
+                            .fc .fc-bg {
+                                background: transparent;
+                            }
+
+                            /* Orange diagonal hatch for full-day non-availability */
+                            .fc-nonavail {
+                                background-image: repeating-linear-gradient(45deg,
+                                        rgba(255, 165, 0, 0.18) 0,
+                                        rgba(255, 165, 0, 0.18) 6px,
+                                        rgba(255, 165, 0, 0.05) 6px,
+                                        rgba(255, 165, 0, 0.05) 12px);
+                                background-size: auto;
+                            }
+                        </style>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                // Build availability background events from server-side data
+                                var availEvents = [
+                                    {% for a in available_dates %}
+    {
+                                    id: "avail-{{ a.id }}",
+                                    start: "{{ a.available_date.isoformat() }}T{{ a.start_time.strftime('%H:%M') }}",
+                                    end: "{{ a.available_date.isoformat() }}T{{ a.end_time.strftime('%H:%M') }}",
+                                    display: "background",
+                                    backgroundColor: "#e6f9e9"  /* light green availability background */
+                                }{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+  ];
+
+                            // Compute non-available full days in the next 7-day window
+                            // Build a set of available date strings for quick lookup
+                            var availableDateSet = new Set([
+                                {% for a in available_dates %}
+                            "{{ a.available_date.isoformat() }}"{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+  ]);
+
+                            // determine start and end dates for the week shown (use available_dates range fallback)
+                            var startDate = null;
+                            var endDate = null;
+                            {% if available_dates and available_dates | length > 0 %}
+                            startDate = "{{ (available_dates|first).available_date.isoformat() }}";
+                            endDate = "{{ (available_dates|last).available_date.isoformat() }}";
+                            {% else %}
+                            // fallback: today .. today+6
+                            var today = new Date();
+                            function pad(n) { return n < 10 ? '0' + n : '' + n; }
+                            function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+                            startDate = iso(new Date());
+                            var d = new Date(); d.setDate(d.getDate() + 6);
+                            endDate = iso(d);
+                            {% endif %}
+
+                            // create date objects
+                            function parseISODate(s) { var p = s.split('-'); return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])); }
+                            var sDate = parseISODate(startDate);
+                            var eDate = parseISODate(endDate);
+
+
+                            // Add full-day non-availability events for dates in range that are not in availableDateSet
+                            var nonAvailEvents = [];
+                            for (var d = new Date(sDate); d <= eDate; d.setDate(d.getDate() + 1)) {
+                                var iso = d.toISOString().slice(0, 10);
+                                if (!availableDateSet.has(iso)) {
+                                    // end must be next day (FullCalendar uses exclusive end for all-day events)
+                                    var next = new Date(d);
+                                    next.setDate(next.getDate() + 1);
+                                    var endIso = next.toISOString().slice(0, 10);
+
+                                    nonAvailEvents.push({
+                                        id: 'nonavail-' + iso,
+                                        start: iso,
+                                        end: endIso,            // exclusive end -> paints full day
+                                        display: 'background',
+                                        className: 'fc-nonavail',
+                                        backgroundColor: 'rgba(255,165,0,0.12)'  // pale orange base color
+                                    });
+                                }
+                            }
+
+                            // Merge events
+                            var allEvents = availEvents.concat(nonAvailEvents);
+
+                            var calendarEl = document.getElementById('calendar');
+                            var calendar = new FullCalendar.Calendar(calendarEl, {
+                                initialView: 'timeGridWeek',
+                                initialDate: startDate,  // Start on first available date
+                                validRange: {            // ADD THIS BLOCK - Only show valid date range
+                                    start: startDate,
+                                    end: endDate
+                                },
+                                allDaySlot: false,
+                                slotMinTime: '07:00:00',
+                                slotMaxTime: '20:00:00',
+                                nowIndicator: true,
+                                selectable: true,
+                                selectMirror: true,
+                                height: 'auto',
+                                headerToolbar: {
+                                    left: 'prev,next today',
+                                    center: 'title',
+                                    right: 'timeGridWeek,timeGridDay'
+                                },
+                                events: allEvents,
+                                select: function (info) {
+                                    // ensure selected range is fully inside an availability background event
+                                    var ok = availEvents.some(function (ev) {
+                                        return info.startStr >= ev.start && info.endStr <= ev.end;
+                                    });
+                                    if (!ok) {
+                                        alert('Please select a time inside the doctor availability (green blocks).');
+                                        calendar.unselect();
+                                        return;
+                                    }
+                                    // Populate date and time inputs (existing inputs on the form)
+                                    var dateInput = document.querySelector('input[name="appointment_date"]');
+                                    var timeInput = document.querySelector('input[name="appointment_time"]');
+                                    if (dateInput) dateInput.value = info.startStr.split('T')[0];
+                                    if (timeInput) timeInput.value = info.startStr.split('T')[1].slice(0, 5);
+                                }
+                            });
+
+                            calendar.render();
+});
+                        </script>
+                        <div class="mb-3">
+                            <label>Appointment Date *</label>
+                            {% if available_dates and available_dates|length > 0 %}
+                            <input type="date" class="form-control" name="appointment_date" required
+                                value="{{ (available_dates|first).available_date.isoformat() }}"
+                                min="{{ (available_dates|first).available_date.isoformat() }}"
+                                max="{{ (available_dates|last).available_date.isoformat() }}">
+                            {% else %}
+                            <input type="date" class="form-control" name="appointment_date" required>
+                            <small class="text-muted">No available dates found.</small>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label>Appointment Time *</label>
+                            <input type="time" class="form-control" name="appointment_time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Reason for Visit</label>
+                            <textarea class="form-control" name="reason" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('patient.doctors') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Book Appointment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

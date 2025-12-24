@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Search - Admin{% endblock %}
+{% block content %}
+<div class="container">
+    <h1><i class="bi bi-search"></i> Advanced Search</h1>
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-8"><input type="text" class="form-control" name="q" placeholder="Search by name, specialization, ID, contact..." value="{{ query }}"></div>
+            <div class="col-md-2"><select class="form-select" name="type"><option value="all">All</option><option value="doctors" {{ 'selected' if search_type == 'doctors' }}>Doctors</option><option value="patients" {{ 'selected' if search_type == 'patients' }}>Patients</option></select></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Search</button></div>
+        </div>
+    </form>
+    {% if query %}
+    {% if doctors %}
+    <h3>Doctors ({{ doctors|length }})</h3>
+    <div class="row g-3 mb-4">
+        {% for doctor in doctors %}
+        <div class="col-md-6">
+            <div class="card"><div class="card-body"><h5>{{ doctor.full_name }}</h5><p class="text-muted">{{ doctor.specialization }}</p><p><small>Contact: {{ doctor.contact_number }}</small></p></div></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if patients %}
+    <h3>Patients ({{ patients|length }})</h3>
+    <div class="row g-3">
+        {% for patient in patients %}
+        <div class="col-md-6">
+            <div class="card"><div class="card-body"><h5>{{ patient.full_name }}</h5><p><small>ID: {{ patient.id }} | Contact: {{ patient.contact_number }}</small></p></div></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if not doctors and not patients %}<div class="alert alert-info">No results found.</div>{% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Appointment Details - Admin{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>Appointment Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Patient:</strong> {{ appointment.patient.full_name }}</p>
+                    <p><strong>Doctor:</strong> {{ appointment.doctor.full_name }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Date:</strong> {{ appointment.appointment_date|format_date }}</p>
+                    <p><strong>Time:</strong> {{ appointment.appointment_time|format_time }}</p>
+                </div>
+            </div>
+            <!-- Nurse assignment (Admin) -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Nurse Assignment</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Current assigned nurse -->
+                    <div class="mb-3">
+                        <strong>Currently assigned:</strong>
+                        {% if appointment.nurse %}
+                        <div>
+                            {{ appointment.nurse.full_name }} &nbsp;
+                            <small class="text-muted">&lt;{{ appointment.nurse.user.email }}&gt;</small>
+                        </div>
+                        {% else %}
+                        <div class="text-muted">No nurse assigned for this appointment.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Assign / Change nurse form -->
+                    <form method="POST" class="mb-2">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-8">
+
+                                <label class="form-label">Assign Nurse for {{ appointment.appointment_date|format_date
+                                    }} {{ appointment.appointment_time|format_time }}</label>
+                                <select name="nurse_id" class="form-select">
+                                    <option value="">-- Unassign / No Nurse --</option>
+                                    {% for n in available_nurses %}
+                                    <option value="{{ n.id }}" {% if appointment.nurse and appointment.nurse.id==n.id
+                                        %}selected{% endif %}>
+                                        {{ n.full_name }} {% if n.department %} — {{ n.department }}{% endif %}
+                                    </option>
+                                    {% endfor %}
+
+                                    {% if busy_nurses %}
+                                    <optgroup label="Currently busy at this slot (click to override)">
+                                        {% for n in busy_nurses %}
+                                        <option value="{{ n.id }}" class="text-danger" {% if appointment.nurse and
+                                            appointment.nurse.id==n.id %}selected{% endif %}>
+                                            {{ n.full_name }} {% if n.department %} — {{ n.department }}{% endif %}
+                                            (busy)
+                                        </option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endif %}
+                                </select>
+                                <small class="form-text text-muted">Busy nurses are listed under "Currently busy" —
+                                    assigning them will override and show a warning.</small>
+                            </div>
+
+                            <div class="col-md-auto d-flex gap-2">
+                                <button type="submit" class="btn btn-primary align-self-end">Assign / Update</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Quick unassign button -->
+                    <form method="POST" onsubmit="return confirm('Unassign nurse from this appointment?');">
+                        <input type="hidden" name="nurse_id" value="">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Unassign Nurse</button>
+                    </form>
+
+                    <!-- Helpful info -->
+                    <div class="mt-3">
+                        {% if busy_nurse_ids %}
+                        <div class="alert alert-warning mb-0">
+                            Note: {{ busy_nurse_ids|length }} nurse(s) are already booked for this exact date/time.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <p><strong>Status:</strong> <span class="badge bg-primary">{{ appointment.status }}</span></p>
+            {% if appointment.reason %}<p><strong>Reason:</strong> {{ appointment.reason }}</p>{% endif %}
+            {% if appointment.treatment %}
+            <hr>
+            <h5>Treatment Details</h5>
+            <p><strong>Diagnosis:</strong> {{ appointment.treatment.diagnosis }}</p>
+            {% if appointment.treatment.prescription %}<p><strong>Prescription:</strong> {{
+                appointment.treatment.prescription }}</p>{% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

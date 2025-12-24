@@ -1,0 +1,762 @@
+\documentclass[12pt,a4paper]{book}
+
+% === Fonts (XeLaTeX / LuaLaTeX) ===
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+
+
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+
+% Sans-serif companion
+\setsansfont{TeX Gyre Heros}
+
+% Monospace companion
+\setmonofont{TeX Gyre Cursor}
+
+\setmonofont{TeX Gyre Cursor}[BoldFont={TeX Gyre Cursor Bold}]
+
+
+% === Tensor notation ===
+\newcommand{\tensor}[1]{\symbfsf{#1}}   % bold upright sans-serif (tensor)
+\newcommand{\tensel}[1]{\symsfit{#1}}   % italic sans-serif (tensor element)
+
+
+% Shortcut for a single letter (or symbol) in italic sans-serif
+\newcommand{\tsf}[1]{\symsfit{#1}}
+\newcommand{\tsfb}[1]{\symbfsfit{#1}}
+% Shortcut for a single letter in upright sans-serif (non-italic)
+\newcommand{\tsfu}[1]{\symsfup{#1}}
+
+
+
+
+
+% --- Vector notation (ISO-style: bold italic) ---
+\renewcommand{\vec}[1]{\symbfit{#1}}
+
+
+% === Color & Titles (load xcolor before titlesec) ===
+\usepackage[dvipsnames,table,x11names]{xcolor}
+\definecolor{teal}{RGB}{0,128,128}
+
+\usepackage{titlesec}
+% Apply teal color to both label and title text
+\titleformat{\section}{\large\bfseries\color{teal}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{teal}}{\thesubsection}{1em}{}
+\titlespacing*{\section}
+  {0pt}{1.5ex plus 1ex minus .2ex}{0.8ex}
+
+\titlespacing*{\subsection}
+  {0pt}{1ex plus 0.5ex minus .2ex}{0.5ex}
+
+
+% === Layout & math ===
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{amsmath}
+\usepackage{bm}
+
+%\usepackage{isomath}   % safe to use with unicode-math (provides environments)
+%\usepackage{amssymb}
+%\usepackage{amssty}
+\usepackage{fancybox}
+
+%%%%%% Grpahics
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{pdflscape}
+\usepackage{longtable}
+
+% === Lists ===
+\usepackage{enumitem}
+\setlist{nosep}
+
+% === Icons & symbols ===
+\usepackage{pifont}        % \ding
+\usepackage{fontawesome5}  % \faSearch, \faBrain, etc. (if available)
+
+% === Safe symbol macros (use \providecommand to avoid redefinition errors) ===
+\providecommand{\cmark}{\textcolor{green}{\ding{51}}}   % ?
+\providecommand{\xmark}{\textcolor{red}{\ding{55}}}     % ?
+%\providecommand{\NoSign}{\textcolor{red}{\textcircled{\raisebox{-0.3ex}{\small/}}}} % circle-slash
+%\newcommand{\GreenTickBox}{\fcolorbox{green}{green!20}{\ding{51}}} % green box with tick
+
+\newcommand{\NoSign}{\textcolor{red}{\faBan}}
+\newcommand{\GreenTickBox}{\textcolor{green}{\faCheckSquare}}
+
+\setlength{\fboxsep}{10pt}  % Internal padding
+\setlength{\fboxrule}{0.05pt} % Set the frame thickness
+
+
+
+% Preamble additions (add these)
+\usepackage{tcolorbox}
+
+\tcbset{
+ mycolbox/.style={
+   colback=GreenYellow!25, % background colour (adjust intensity with !)
+    boxrule=0pt,            % no border
+   left=6pt, right=6pt, top=6pt, bottom=6pt, % padding
+    arc=1mm,                % slight corner rounding (optional)
+    boxsep=0pt,
+    %enhanced
+  }
+}
+\newtcolorbox{colboxedminipage}[1][]{mycolbox, width=0.8\textwidth, #1}
+
+\tcbuselibrary{skins}
+
+\newtcbox{\myshadowbox}{
+  enhanced,
+  colback=white,              % background color
+  colframe=black,             % border color
+  boxrule=0.6pt,              % border thickness
+  arc=1mm,                    % rounded corners
+  boxsep=2pt,                 % inner padding
+  drop shadow={black!10!white}, % shadow color (black 50% opacity)
+}
+
+
+\usepackage{listings}
+
+
+% Define a nice style for Python code
+\lstdefinestyle{mypython}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black}\itshape,
+  showstringspaces=false,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  breaklines=true,
+  tabsize=2
+}
+
+
+
+
+% For math symbols in subscripts (maintains math mode)
+\newcommand{\msub}[1]{_{\mathrm{#1}}}
+
+% For text in subscripts (uses text mode with consistent size)
+\newcommand{\tsub}[1]{_{\text{\footnotesize #1}}}
+
+% For nested math subscripts with same size
+\newcommand{\nmsub}[1]{_{\scriptstyle #1}}
+
+% For nested text subscripts with same size
+\newcommand{\ntsub}[1]{_{\text{\scriptsize #1}}}
+
+\usepackage{fancyvrb}
+\usepackage{alltt,fix-cm}
+\usepackage{pdfpages}
+
+
+\def\cvdots {\omit\span\omit \hfil$\vdots$\hfil}
+
+
+
+
+% Define safe color (custom name avoids clashes)
+\definecolor{myred}{rgb}{0.55,0,0}
+
+% Bold italic macro (math only)
+%\DeclareRobustCommand{\bmi}[1]{\bm{\mathit{#1}}}
+
+\newcommand{\bmi}[1]{\symbfit{#1}}   % bold math italic (for matrices, or general math symbols)
+
+
+% Colored variable macro - FIXED to work in both text and math mode
+\newcommand{\colx}[1]{\textcolor{myred}{\ensuremath{\bmi{#1}}}}
+
+\newcommand{\bmiv}[2]{\bmi{#1}_{#2}}
+
+\newcommand{\bmiIn}[1]{\bmi{I}\!_{#1}}
+
+\newcommand{\greensquare}{\textcolor{green!70!black}{\ding{111}}} % open square
+\newcommand{\sqbullet}{\textcolor{blue}{\ding{110}}}
+\newcommand{\redsquare}{\textcolor{red}{\ding{110}}}  % red square
+\newcommand{\bluesquare}{\textcolor{blue!70!black}{\ding{111}}}  % blue open square
+
+
+\newcommand{\tens}[1]{\bm{#1}}
+
+
+% --- Tiny code environment ---
+\newenvironment{codeTiny}{%
+  \par\begingroup
+  \fontsize{7.5}{9}\selectfont
+}{%
+  \par\endgroup
+}
+
+% --- Small code environment ---
+\newenvironment{codeSmall}{%
+  \par\begingroup
+  \fontsize{9}{11}\selectfont
+}{%
+  \par\endgroup
+}
+
+% --- Normal code environment ---
+\newenvironment{codeNormal}{%
+  \par\begingroup
+  \fontsize{10}{12}\selectfont
+}{%
+  \par\endgroup
+}
+
+
+
+% limits underneath
+\DeclareMathOperator*{\argminA}{arg\,min} % Jan Hlavacek
+\DeclareMathOperator*{\argminB}{argmin}   % Jan Hlavacek
+\DeclareMathOperator*{\argminC}{\arg\min}   % rbp
+
+\newcommand{\argminD}{\arg\:\min} % AlfC
+\newcommand{\argmaxD}{\arg\:\max}
+
+% \! no space or negative space
+% \: medium space
+% \, thin space
+% \; thick space
+% \  regular normal space
+% \\quad larger space
+
+\newcommand{\argminE}{\mathop{\mathrm{argmin}}}          % ASdeL
+\newcommand{\argminF}{\mathop{\mathrm{argmin}}\limits}   % ASdeL
+
+% limits on side
+\DeclareMathOperator{\argminG}{arg\,min} % Jan Hlavacek
+\DeclareMathOperator{\argminH}{argmin}   % Jan Hlavacek
+\newcommand{\argminI}{\mathop{\mathrm{argmin}}\nolimits} % ASdeL
+
+\newcommand{\cs}[1]{\texttt{\symbol{`\\}#1}}
+
+\newcommand{\ttabs}[1]{\texttt{\ensuremath{\lvert #1 \rvert}}}
+
+
+% === Document metadata ===
+\title{Modern Application Development 1 Hospital Management System Project Report September 2025 Term}
+\author{Venkatesh R}
+\date{\today}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\Huge \bfseries Hospital Management System (HMS) \par}
+  \vspace{1.5cm}
+  {\Large Modern Application Development - I \par}
+  \vspace{1cm}
+  {\Large Author: Venkatesh Ramakrishnan \par}
+  \vspace{0.5cm}
+  {\Large Date: \today \par}
+  \vfill
+  \begin{flushleft}
+  
+  \textbf{Institution:} Indian Institute of Technology Madras 
+  \end{flushleft}
+\end{titlepage}
+
+\vspace{0.5cm}
+
+\section*{Abstract}
+
+\vspace{0.5cm}
+
+This report documents the design and implementation of a Hospital Management System (HMS) developed as part of the Modern Application Development - I course. The system implements role-based access (admin, doctor, nurse, triage, patient) using Flask and SQLite, a calendar-driven appointment booking UI, and administrative and clinical workflows. This document explains the architecture (MVC mapping), data model (ER diagram), key features, testing performed, deployment instructions, and known limitations and future work.
+
+\vspace{1cm}
+
+\section*{Acknowledgements}
+
+\vspace{0.5cm}
+
+The author thanks the course instructors and peers for guidance and the project rubric provided in the course materials.
+
+\vspace{1cm}
+
+\section*{Revision History}
+
+\vspace{0.5cm}
+
+\begin{tabular}{l l p{8cm}}
+\toprule
+Date & Version & Notes \\
+\midrule
+2025-11-30 & 1.0 & Initial complete submission with ER diagram, code, and documentation \\
+\bottomrule
+\end{tabular}
+
+
+\section*{Introduction}
+
+\vspace{0.5cm}
+
+This project implements a simplified Hospital Management System (HMS) focusing on out-patient clinic workflows: user management, role-based dashboards, appointment booking via a weekly calendar grid, doctor availability management, triage-assisted patient creation and booking, and basic treatment recording. The system's goals align with course deliverables: Flask back-end, Jinja2 templates, SQLite database, and a responsive UI using Bootstrap and FullCalendar.
+
+\vspace{1cm}
+
+\section*{Technologies \& Tools}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Python 3.12, Flask (microframework), Flask-Login
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Jinja2 templates for server-side rendering
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] SQLite for persistent storage (file: {\small \texttt{hospital.db}})
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Bootstrap for responsive UI and FullCalendar for calendar UI
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] PlantUML for ER diagram generation (source in repository)
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Tooling: virtualenv, pip, Graphviz (optional for PlantUML)
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{High-level Architecture and MVC mapping}
+
+\vspace{0.5cm}
+
+The application follows an MVC-like pattern:
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Models: Python ORM-style classes under {\small \texttt{models/}} (e.g., {\small \texttt{models/user.py}}, \\ {\small \texttt{models/appointment.py}}). They map directly to database tables.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Views: Jinja2 templates stored under {\small \texttt{templates/}} \\ 
+	(e.g., {\small \texttt{templates/login.html}}, {\small \texttt{templates/patient/book\_appointment.html}}).
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Controllers: Flask blueprints in {\small \texttt{routes/}} (e.g., {\small \texttt{routes/auth.py}}, {\small \texttt{routes/admin.py}}, {\small \texttt{routes/doctor.py}}, {\small \texttt{routes/patient.py}}). These handle request routing, form processing, data validation and redirects.
+\end{itemize}
+
+\vspace{0.5cm}
+
+Extensions and helpers:
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] {\small \texttt{extensions.py}} configures shared services (database, login manager).
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] {\small \texttt{utils/decorators.py}} and {\small \texttt{utils/helpers.py}} provide role-check decorators and utility functions.
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{Database Design and ER Diagram}
+
+\vspace{0.5cm}
+
+The ER diagram is included below. It shows the central {\small \texttt{users}} table and role-specific profile tables ({\small \texttt{patients}}, {\small \texttt{doctors}}, {\small \texttt{nurses}}, {\small \texttt{triages}}), and transactional tables such as {\small \texttt{appointments}}, {\small \texttt{doctor\_availabilities}}, {\small \texttt{treatments}} and {\small \texttt{nurse\_assignments}}.
+
+\vspace{0.5cm}
+
+The ER diagram is included on the following page.
+
+\vspace{0.5cm}
+
+\includepdf[pages=1,pagecommand={}]{ER_diagram.pdf}
+
+\vspace{0.5cm}
+
+\clearpage
+
+\section*{Data Models --- mapping to code}
+
+\vspace{0.5cm}
+
+Below are short descriptions of the principal model classes and their responsibilities.
+
+\vspace{0.5cm}
+
+\subsection*{User model (models/user.py)}
+
+\vspace{0.3cm}
+
+Purpose: central authentication and role storage. Key attributes: {\small \texttt{id}}, {\small \texttt{username}}, {\small \texttt{email}}, {\small \texttt{password\_hash}}, {\small \texttt{role}}, {\small \texttt{is\_active}}. Role helper methods include {\small \texttt{is\_admin()}}, {\small \texttt{is\_doctor()}}, {\small \texttt{is\_patient()}}, {\small \texttt{is\_nurse()}}, {\small \texttt{is\_triage()}}.
+
+\vspace{0.5cm}
+
+Example (short snippet --- explanatory only):
+
+\vspace{0.5cm}
+
+{\color{RoyalBlue}
+\begin{codeSmall}
+
+\begin{verbatim}
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, unique=True, index=True)
+    email = db.Column(db.String, unique=True, index=True)
+    password_hash = db.Column(db.String)
+    role = db.Column(db.String)  # admin/doctor/patient/nurse/triage
+    is_active = db.Column(db.Boolean, default=True)
+
+    def is_triage(self):
+        return getattr(self, 'role', None) == 'triage'
+\end{verbatim}
+
+\end{codeSmall}
+}
+
+\vspace{0.5cm}
+
+\subsection*{Appointment model (models/appointment.py)}
+
+\vspace{0.3cm}
+
+Purpose: stores appointment records with references to patient, doctor, optional nurse, date/time and status.
+
+\vspace{0.5cm}
+
+Key columns: {\small \texttt{patient\_id}}, {\small \texttt{doctor\_id}}, {\small \texttt{nurse\_id}} (nullable), {\small \texttt{appointment\_date}}, {\small \texttt{appointment\_time}}, {\small \texttt{status}}.
+
+\vspace{1cm}
+
+\section*{Functional Requirements \& Feature List}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Role-based login and dashboards: admin, doctor, nurse, triage, patient.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Admin features: add/edit/delete doctors, nurses, patients; view and search appointments; assign staff.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Doctor features: set availability, view weekly schedule, view patient history, complete appointments and record treatments.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Patient features: register, login, book appointments via calendar grid, reschedule, view history and profile.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Triage features: create patient records (one-off), and book appointments directly for patients; triage users have specific landing pages and workflows.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Nurse management: assign nurses to appointments or patients (time-bound nurse assignments supported).
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Calendar integration: weekly grid with FullCalendar, displays availability, allows slot selection; non-availability drawn with diagonal shading.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Conflict checking: backend checks when booking/rescheduling to prevent double-booking and notifies via flash messages.
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{Detailed Implementation Notes}
+
+\vspace{0.5cm}
+
+\subsection*{Login flow and redirects}
+
+\vspace{0.5cm}
+
+Login happens at {\small \texttt{routes/auth.py::login}}. After successful authentication, the application redirects based on role:
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] admin $\rightarrow$ {\small \texttt{admin.dashboard}}
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] doctor $\rightarrow$ {\small \texttt{doctor.dashboard}}
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] triage $\rightarrow$ triage landing page (ensure {\small \texttt{is\_triage}} exists on User)
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] patient $\rightarrow$ {\small \texttt{patient.dashboard}}
+\end{itemize}
+
+\vspace{0.5cm}
+
+A common cause of redirect loops is protecting the login route with a login-required decorator --- ensure the login route has no access-control decorator.
+
+\vspace{0.5cm}
+
+\subsection*{Appointment booking}
+
+\vspace{0.3cm}
+
+Booking relies on doctor availability records ({\small \texttt{doctor\_availabilities}}) and the calendar UI. The front-end requests slots and the backend returns available times (taking into account existing appointments). On selection, the POST handler validates conflicts before creating an {\small \texttt{Appointment}} record.
+
+\vspace{0.5cm}
+
+\subsection*{Reschedule flow}
+
+\vspace{0.3cm}
+
+Rescheduling uses the calendar UI (or fallback select lists). The backend checks for conflicts and ensures the new slot matches doctor availability.
+
+\vspace{0.5cm}
+
+\subsection*{Nurse assignment}
+
+\vspace{0.3cm}
+
+Appointments include nullable {\small \texttt{nurse\_id}}. A separate {\small \texttt{nurse\_assignments}} table supports long-term assignments with {\small \texttt{start\_datetime}} and {\small \texttt{end\_datetime}}. Admin, triage, and doctors can assign nurses.
+
+\vspace{1cm}
+
+\section*{Key templates and controllers referenced}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] {\small \texttt{routes/auth.py}} --- login, register, logout
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] {\small \texttt{routes/main.py}} --- root route and landing redirects
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] {\small \texttt{routes/admin.py}} --- admin CRUD and dashboard
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] {\small \texttt{routes/doctor.py}} --- availability and doctor dashboard
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] {\small \texttt{routes/patient.py}} --- patient features and booking
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] {\small \texttt{templates/login.html}}, \\
+	{\small \texttt{templates/register.html}}, \\
+	{\small \texttt{templates/patient/book\_appointment.html}}, \\
+	{\small \texttt{templates/patient/reschedule\_appointment.html}}
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{Testing}
+
+\vspace{0.5cm}
+
+Manual test cases performed:
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Admin login: verified
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Patient registration + login: verified
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Triage: created and tested triage user using {\small \texttt{create\_triage.py}}
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Booking: calendar displays doctor availability; able to book and view appointments
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Conflict handling: attempted to double-book a slot to verify flash message appears
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Reschedule: verified UI flow and server-side conflict rejection where applicable
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{Deployment \& Run Instructions}
+
+\vspace{0.5cm}
+
+{\color{RoyalBlue}
+\begin{codeSmall}
+
+\begin{verbatim}
+# Activate virtual environment
+# Unix
+source venv/bin/activate
+
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+
+# Set environment variables and run
+export FLASK_APP=app.py
+export FLASK_ENV=development
+flask run
+
+# Create triage user if needed
+python create_triage.py
+\end{verbatim}
+
+\end{codeSmall}
+}
+
+\vspace{1cm}
+
+\section*{Security \& Privacy Considerations}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Passwords are stored hashed (do not store plain text passwords).
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Sessions rely on Flask session cookies --- set secure cookie flags in production.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Role checks implemented in decorators --- ensure those decorators are applied correctly on sensitive routes.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Sanitize any user-supplied text that is displayed back in templates to avoid injection.
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{Usability \& UI Notes}
+
+\vspace{0.5cm}
+
+FullCalendar provides a familiar weekly view for booking. Non-availability shading and diagonal patterns were added in CSS/JS. The calendar allows click-to-select an available slot, and the backend verifies availability at the time of booking.
+
+\vspace{1cm}
+
+\section*{Known Issues \& Future Work}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Improve automated tests and add unit tests for booking logic and conflict checks.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Add migration support (Flask-Migrate) for schema changes.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Email notifications for appointment confirmations and reminders.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Audit logging for admin actions.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Background worker (RQ/Celery) for heavy tasks and email sending.
+\end{itemize}
+
+\vspace{1cm}
+
+\section*{User Guide (step-by-step)}
+
+\vspace{0.5cm}
+
+\subsection*{Admin}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Login as admin (default demo: admin / admin123).
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Use Admin Dashboard to add doctors/nurses/patients.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Set doctor availability via Doctor Availability pages.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] View appointments and assign nurses if required.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\subsection*{Doctor}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Login with doctor credentials.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Set weekly availability and view scheduled appointments.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Mark appointment as complete and add treatment details.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\subsection*{Triage}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Triage users can create a patient record and book an appointment for the patient.
+  
+  \vspace{0.5cm}
+  
+  \item[\tiny{\bluesquare}] Triage landing page allows immediate booking into available slots.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\subsection*{Patient}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item[\tiny{\bluesquare}] Register or login, view dashboard, book/reschedule appointments via calendar.
+\end{itemize}
+
+
+\end{document}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Doctors - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="bi bi-person-badge"></i> Manage Doctors</h1>
+            <p class="text-muted">View and manage all doctors</p>
+        </div>
+        <a href="{{ url_for('admin.add_doctor') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Doctor
+        </a>
+    </div>
+
+    {% if doctors.items %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Specialization</th>
+                            <th>Contact</th>
+                            <th>Experience</th>
+                            <th>Fee</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctors.items %}
+                        <tr>
+                            <td>{{ doctor.id }}</td>
+                            <td>{{ doctor.full_name }}</td>
+                            <td><span class="badge bg-info">{{ doctor.specialization }}</span></td>
+                            <td>{{ doctor.contact_number }}</td>
+                            <td>{{ doctor.experience_years }} years</td>
+                            <td>₹{{ doctor.consultation_fee }}</td>
+                            <td>
+                                {% if doctor.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Edit Button -->
+                                <a href="{{ url_for('admin.edit_doctor', doctor_id=doctor.id) }}"
+                                    class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <!-- Activate/Deactivate Toggle -->
+                                {% if doctor.is_active %}
+                                <button type="button" class="btn btn-sm btn-outline-warning"
+                                    onclick="confirmToggle({{ doctor.id }}, '{{ doctor.full_name }}', 'deactivate')"
+                                    title="Deactivate">
+                                    <i class="bi bi-pause-circle"></i>
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-sm btn-outline-success"
+                                    onclick="confirmToggle({{ doctor.id }}, '{{ doctor.full_name }}', 'activate')"
+                                    title="Activate">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                                {% endif %}
+
+                                <!-- Delete Button -->
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="confirmDelete({{ doctor.id }}, '{{ doctor.full_name }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if doctors.pages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if doctors.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.doctors', page=doctors.prev_num) }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in doctors.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                    {% if page_num == doctors.page %}
+                    <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('admin.doctors', page=page_num) }}">{{
+                            page_num }}</a></li>
+                    {% endif %}
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if doctors.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.doctors', page=doctors.next_num) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No doctors found. <a href="{{ url_for('admin.add_doctor') }}">Add your first
+            doctor</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove/blacklist <strong id="doctorName"></strong>?</p>
+                <p class="text-danger"><small>This action will deactivate the doctor's account.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" id="deleteForm">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Toggle Status Confirmation Modal -->
+<div class="modal fade" id="toggleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm <span id="toggleAction"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to <strong id="toggleActionLower"></strong> <strong
+                        id="toggleDoctorName"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" id="toggleForm">
+                    <button type="submit" class="btn" id="toggleBtn">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function confirmDelete(doctorId, doctorName) {
+        document.getElementById('doctorName').textContent = doctorName;
+        document.getElementById('deleteForm').action = '/admin/doctors/delete/' + doctorId;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+
+    function confirmToggle(doctorId, doctorName, action) {
+        document.getElementById('toggleDoctorName').textContent = doctorName;
+        document.getElementById('toggleAction').textContent = action.charAt(0).toUpperCase() + action.slice(1);
+        document.getElementById('toggleActionLower').textContent = action;
+        document.getElementById('toggleForm').action = '/admin/doctors/toggle-status/' + doctorId;
+
+        const toggleBtn = document.getElementById('toggleBtn');
+        if (action === 'deactivate') {
+            toggleBtn.className = 'btn btn-warning';
+        } else {
+            toggleBtn.className = 'btn btn-success';
+        }
+
+        new bootstrap.Modal(document.getElementById('toggleModal')).show();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+
+{% extends "base.html" %}
+
+{% block title %}About - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h1 class="text-center mb-4">About Hospital Management System</h1>
+                
+                <p class="lead text-center">
+                    A comprehensive web application for managing hospital operations efficiently.
+                </p>
+
+                <hr class="my-4">
+
+                <h3>Features</h3>
+                <ul>
+                    <li><strong>Admin Portal:</strong> Manage doctors, patients, and appointments</li>
+                    <li><strong>Doctor Portal:</strong> View appointments, add treatments, manage availability</li>
+                    <li><strong>Patient Portal:</strong> Book appointments, view medical history</li>
+                    <li><strong>REST API:</strong> JSON endpoints for integration</li>
+                    <li><strong>Email Notifications:</strong> Automatic appointment confirmations</li>
+                </ul>
+
+                <h3 class="mt-4">Technology Stack</h3>
+                <ul>
+                    <li>Backend: Flask, SQLite</li>
+                    <li>Frontend: HTML, CSS, Bootstrap 5</li>
+                    <li>Authentication: Flask-Login</li>
+                    <li>Visualization: Chart.js</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

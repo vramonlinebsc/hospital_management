@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Patient Details - Admin{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+                    <h3>{{ patient.full_name }}</h3>
+                    <p class="text-muted">Patient ID: {{ patient.id }}</p>
+                    <p><strong>Contact:</strong> {{ patient.contact_number }}</p>
+                    <p><strong>Gender:</strong> {{ patient.gender or 'N/A' }}</p>
+                    <p><strong>Blood Group:</strong> {{ patient.blood_group or 'N/A' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><h5>Appointment History</h5></div>
+                <div class="card-body">
+                    {% if appointments %}
+                    <table class="table">
+                        <thead><tr><th>Date</th><th>Doctor</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for apt in appointments %}
+                            <tr>
+                                <td>{{ apt.appointment_date|format_date }}</td>
+                                <td>{{ apt.doctor.full_name }}</td>
+                                <td><span class="badge bg-{{ 'primary' if apt.status == 'Booked' else 'success' if apt.status == 'Completed' else 'danger' }}">{{ apt.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No appointments found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

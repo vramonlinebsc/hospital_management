@@ -1,0 +1,140 @@
+@startuml HMS_ER
+' Entities
+entity "users" as users {
+  * id : integer <<PK>>
+  --
+  username : varchar
+  email : varchar
+  password_hash : varchar
+  role : varchar
+  is_active : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "patients" as patients {
+  * id : integer <<PK>>
+  --
+  user_id : integer <<FK>>
+  full_name : varchar
+  contact_number : varchar
+  gender : varchar
+  date_of_birth : date
+  blood_group : varchar
+  address : text
+  emergency_contact_name : varchar
+  emergency_contact_number : varchar
+  medical_history : text
+  allergies : text
+  is_active : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "doctors" as doctors {
+  * id : integer <<PK>>
+  --
+  user_id : integer <<FK>>
+  full_name : varchar
+  specialization : varchar
+  department : varchar
+  contact_number : varchar
+  is_active : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "nurses" as nurses {
+  * id : integer <<PK>>
+  --
+  user_id : integer <<FK>>
+  full_name : varchar
+  department : varchar
+  contact_number : varchar
+  is_active : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "triages" as triages {
+  * id : integer <<PK>>
+  --
+  user_id : integer <<FK>>
+  full_name : varchar
+  contact_number : varchar
+  department : varchar
+  is_active : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "doctor_availabilities" as doctor_avail {
+  * id : integer <<PK>>
+  --
+  doctor_id : integer <<FK>>
+  available_date : date
+  start_time : time
+  end_time : time
+  is_available : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "appointments" as appointments {
+  * id : integer <<PK>>
+  --
+  patient_id : integer <<FK>>
+  doctor_id : integer <<FK>>
+  nurse_id : integer <<FK>>  ' nullable
+  appointment_date : date
+  appointment_time : time
+  status : varchar   ' Booked/Completed/Canceled
+  reason : text
+  is_deleted : boolean
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "treatments" as treatments {
+  * id : integer <<PK>>
+  --
+  appointment_id : integer <<FK>>
+  diagnosis : text
+  prescription : text
+  notes : text
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "nurse_assignments" as nurse_assign {
+  * id : integer <<PK>>
+  --
+  nurse_id : integer <<FK>>
+  patient_id : integer <<FK>>
+  start_datetime : datetime
+  end_datetime : datetime         ' nullable for open-ended
+  assignment_type : varchar       ' one-off/long-term
+  created_at : datetime
+  updated_at : datetime
+}
+
+' Relationships
+users ||--o{ patients : has
+users ||--o{ doctors : has
+users ||--o{ nurses : has
+users ||--o{ triages : has
+
+doctors ||--o{ doctor_avail : "has"
+doctors ||--o{ appointments : "has"
+patients ||--o{ appointments : "has"
+
+nurses ||--o{ nurse_assign : "assigns"
+patients ||--o{ nurse_assign : "assigned_to"
+
+appointments }o--|| patients : "for"
+appointments }o--|| doctors : "with"
+appointments }o--|{ nurses : "assigned"
+
+appointments ||--o{ treatments : "may_have"
+
+@enduml

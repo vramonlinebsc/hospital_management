@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}My Patients - Doctor{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1><i class="bi bi-people"></i> My Patients</h1>
+    {% if patients %}
+    <div class="row g-3">{% for patient in patients %}<div class="col-md-4"><div class="card"><div class="card-body"><h5>{{ patient.full_name }}</h5><p><small>Contact: {{ patient.contact_number }}</small></p>
+    <a href="{{ url_for('doctor.patient_history', patient_id=patient.id) }}" class="btn btn-sm btn-primary">View History</a></div></div></div>{% endfor %}</div>
+    {% else %}<div class="alert alert-info">No patients assigned yet.</div>{% endif %}
+</div>
+{% endblock %}

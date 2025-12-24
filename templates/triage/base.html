@@ -1,0 +1,15 @@
+<!-- In the navbar <ul class="navbar-nav me-auto">, add this section after patient section: -->
+
+{% elif current_user.is_triage() %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('triage.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('triage.assess_patient') }}"><i class="bi bi-clipboard2-pulse"></i> New Assessment</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('triage.assessments') }}"><i class="bi bi-clipboard-data"></i> All Assessments</a>
+</li>
+
+{% elif current_user.is_nurse() %}
+<!-- Add nurse navigation here when you implement nurse routes -->

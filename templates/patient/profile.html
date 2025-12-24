@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}My Profile - Patient{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white"><h4>My Profile</h4></div>
+        <div class="card-body">
+          {% if request.args.get('edit') %}
+            <form method="POST">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Full Name</label>
+                  <input type="text" class="form-control" name="full_name" value="{{ patient.full_name }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Contact Number</label>
+                  <input type="tel" class="form-control" name="contact_number" value="{{ patient.contact_number }}">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label>Date of Birth</label>
+                  <input type="date" class="form-control" name="date_of_birth" value="{{ patient.date_of_birth.isoformat() if patient.date_of_birth }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label>Gender</label>
+                  <select class="form-select" name="gender">
+                    <option value="">Select</option>
+                    <option value="Male" {{ 'selected' if patient.gender == 'Male' }}>Male</option>
+                    <option value="Female" {{ 'selected' if patient.gender == 'Female' }}>Female</option>
+                    <option value="Other" {{ 'selected' if patient.gender == 'Other' }}>Other</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label>Blood Group</label>
+                  <select class="form-select" name="blood_group">
+                    <option value="">Select</option>
+                    {% for bg in ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] %}
+                      <option value="{{ bg }}" {{ 'selected' if patient.blood_group == bg }}>{{ bg }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label>Address</label>
+                <textarea class="form-control" name="address" rows="2">{{ patient.address or '' }}</textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Emergency Contact Name</label>
+                  <input type="text" class="form-control" name="emergency_contact_name" value="{{ patient.emergency_contact_name or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Emergency Contact Number</label>
+                  <input type="tel" class="form-control" name="emergency_contact_number" value="{{ patient.emergency_contact_number or '' }}">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label>Medical History</label>
+                <textarea class="form-control" name="medical_history" rows="2">{{ patient.medical_history or '' }}</textarea>
+              </div>
+
+              <div class="mb-3">
+                <label>Allergies</label>
+                <textarea class="form-control" name="allergies" rows="2">{{ patient.allergies or '' }}</textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Update Profile</button>
+              <a href="{{ url_for('patient.profile') }}" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+
+          {% else %}
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label mb-1">Full Name</label>
+                <p class="form-control-plaintext">{{ patient.full_name or '-' }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label mb-1">Contact Number</label>
+                <p class="form-control-plaintext">{{ patient.contact_number or '-' }}</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label mb-1">Date of Birth</label>
+                <p class="form-control-plaintext">{{ patient.date_of_birth.strftime('%d-%m-%Y') if patient.date_of_birth else '-' }}</p>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label mb-1">Gender</label>
+                <p class="form-control-plaintext">{{ patient.gender or '-' }}</p>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label mb-1">Blood Group</label>
+                <p class="form-control-plaintext">{{ patient.blood_group or '-' }}</p>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label mb-1">Address</label>
+              <p class="form-control-plaintext">{{ patient.address or '-' }}</p>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label mb-1">Emergency Contact Name</label>
+                <p class="form-control-plaintext">{{ patient.emergency_contact_name or '-' }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label mb-1">Emergency Contact Number</label>
+                <p class="form-control-plaintext">{{ patient.emergency_contact_number or '-' }}</p>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label mb-1">Medical History</label>
+              <p class="form-control-plaintext">{{ patient.medical_history or '-' }}</p>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label mb-1">Allergies</label>
+              <p class="form-control-plaintext">{{ patient.allergies or '-' }}</p>
+            </div>
+
+            <div class="mt-3">
+              <a href="{{ url_for('patient.profile') }}?edit=1" class="btn btn-primary">Edit Profile</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

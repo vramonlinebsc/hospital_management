@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System - Project Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2C3E50;
+            background: white;
+        }
+        
+        .cover-page {
+            text-align: center;
+            padding: 100px 50px;
+            page-break-after: always;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .cover-page h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .cover-page h2 {
+            font-size: 28px;
+            margin: 20px 0;
+            font-weight: 300;
+        }
+        
+        .cover-page .details {
+            margin-top: 60px;
+            font-size: 18px;
+            line-height: 2;
+        }
+        
+        .placeholder {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        
+        .content {
+            padding: 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            page-break-before: always;
+        }
+        
+        h1:first-child {
+            page-break-before: avoid;
+        }
+        
+        h2 {
+            color: #764ba2;
+            font-size: 24px;
+            margin: 30px 0 15px 0;
+        }
+        
+        h3 {
+            color: #4A90E2;
+            font-size: 20px;
+            margin: 25px 0 12px 0;
+        }
+        
+        h4 {
+            color: #5A6C7D;
+            font-size: 16px;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            margin: 10px 0;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .highlight-box {
+            background: #F0F4FF;
+            border-left: 4px solid #4A90E2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning-box {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+            page-break-inside: avoid;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .code-block {
+            background: #2C3E50;
+            color: #ECF0F1;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .folder-structure {
+            background: #F5F5F5;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 20px 0;
+            white-space: pre;
+        }
+        
+        .feature-checklist {
+            list-style: none;
+            margin: 15px 0;
+        }
+        
+        .feature-checklist li::before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .tech-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        .section-divider {
+            border-top: 2px dashed #ddd;
+            margin: 40px 0;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+        
+        .no-break {
+            page-break-inside: avoid;
+        }
+        
+        .diagram-container {
+            text-align: center;
+            margin: 30px 0;
+            page-break-inside: avoid;
+        }
+        
+        .diagram-container img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 2px solid #667eea;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+            
+            .no-break {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover-page">
+    <h1>Hospital Management System</h1>
+    <h2>MAD-1 Project Report</h2>
+    <div class="details">
+        <div class="placeholder">Student Name: [To be filled]</div><br>
+        <div class="placeholder">Roll Number: 2KXXXX</div><br>
+        <div class="placeholder">Date: [To be filled]</div><br>
+        <div style="margin-top: 40px; font-size: 16px;">
+            Course: Modern Application Development - I<br>
+            Indian Institute of Technology Madras
+        </div>
+    </div>
+</div>
+
+<!-- Content Pages -->
+<div class="content">
+
+<h1>1. Project Overview</h1>
+
+<h3>Introduction</h3>
+<p>The Hospital Management System (HMS) is a comprehensive web-based application designed to streamline hospital operations by digitizing and automating key processes such as patient registration, doctor management, appointment scheduling, and treatment record maintenance. This system addresses the inefficiencies of manual record-keeping and disconnected software systems prevalent in many healthcare facilities.</p>
+
+<h3>Objectives</h3>
+<ul>
+    <li><strong>Centralized Data Management:</strong> Create a unified platform for managing patient records, doctor profiles, and appointments</li>
+    <li><strong>Role-Based Access Control:</strong> Implement secure, role-specific interfaces for Admins, Doctors, and Patients</li>
+    <li><strong>Efficient Scheduling:</strong> Prevent appointment conflicts through automated slot validation and availability management</li>
+    <li><strong>Complete Medical Records:</strong> Maintain comprehensive treatment history with diagnosis, prescriptions, and follow-up information</li>
+    <li><strong>Enhanced User Experience:</strong> Provide intuitive interfaces with real-time data visualization and responsive design</li>
+</ul>
+
+<h3>Problem Statement</h3>
+<p>Hospitals currently face challenges with manual registers prone to errors, scheduling conflicts, difficulty tracking patient medical history, limited search capabilities, lack of centralized access, and inefficient communication. This HMS provides a modern, efficient solution through a unified web application.</p>
+
+<div class="section-divider"></div>
+
+<h1>2. Technology Stack & Frameworks</h1>
+
+<h3>Backend Technologies</h3>
+<div>
+    <span class="tech-badge">Flask 3.0.0</span>
+    <span class="tech-badge">SQLAlchemy 2.0.23</span>
+    <span class="tech-badge">Flask-Login 0.6.3</span>
+    <span class="tech-badge">Flask-Mail 0.9.1</span>
+    <span class="tech-badge">Werkzeug 3.0.1</span>
+</div>
+
+<h3>Frontend Technologies</h3>
+<div>
+    <span class="tech-badge">HTML5</span>
+    <span class="tech-badge">CSS3</span>
+    <span class="tech-badge">Bootstrap 5.3</span>
+    <span class="tech-badge">JavaScript</span>
+    <span class="tech-badge">Chart.js</span>
+    <span class="tech-badge">Jinja2</span>
+</div>
+
+<h3>Database</h3>
+<p><strong>SQLite</strong> - Relational database programmatically created using SQLAlchemy models with ACID transaction support.</p>
+
+<div class="section-divider"></div>
+
+<h1>3. System Architecture & Approach</h1>
+
+<h3>MVC Architecture</h3>
+<p>The application follows the <strong>Model-View-Controller (MVC)</strong> design pattern:</p>
+
+<div class="highlight-box">
+    <h4>Models (models/)</h4>
+    <p>Define database schema, relationships, data validation, and business logic. Implement soft delete pattern.</p>
+    
+    <h4>Views (templates/)</h4>
+    <p>Jinja2 templates for dynamic HTML rendering, organized by role with reusable base template.</p>
+    
+    <h4>Controllers (routes/)</h4>
+    <p>Flask blueprints handling HTTP requests, form submissions, business logic, and authorization.</p>
+</div>
+
+<h3>Project Folder Structure</h3>
+<div class="folder-structure">hospital_management_system/
+├── app.py                      # Application entry point
+├── config.py                   # Configuration settings
+├── extensions.py               # Flask extensions
+├── requirements.txt            # Dependencies
+├── models/                     # Database models
+│   ├── user.py
+│   ├── doctor.py
+│   ├── patient.py
+│   ├── appointment.py
+│   ├── treatment.py
+│   └── doctor_availability.py
+├── routes/                     # Controllers
+│   ├── auth.py
+│   ├── admin.py
+│   ├── doctor.py
+│   ├── patient.py
+│   ├── api.py
+│   └── main.py
+├── templates/                  # Views
+│   ├── admin/
+│   ├── doctor/
+│   ├── patient/
+│   └── errors/
+├── static/                     # Static assets
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── utils/                      # Utilities
+    ├── decorators.py
+    └── helpers.py</div>
+
+<h3>Key Design Decisions</h3>
+<ul>
+    <li><strong>Soft Delete Pattern:</strong> Records marked as deleted instead of permanent deletion for audit trails</li>
+    <li><strong>Role-Based Access Control:</strong> Three roles with custom decorators for authorization</li>
+    <li><strong>Indexed Fields:</strong> Optimized queries with indexes on frequently searched columns</li>
+    <li><strong>RESTful API:</strong> Stateless JSON endpoints with standard HTTP methods</li>
+    <li><strong>Responsive Design:</strong> Mobile-first Bootstrap approach for all devices</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h1>4. Database Design - ER Diagram</h1>
+
+<div class="diagram-container">
+    <img src="file:///home/ubuntu/hospital_management_system/er_diagram.png" alt="ER Diagram" style="max-width: 100%; height: auto;">
+</div>
+
+<h3>Entity Relationships</h3>
+<table>
+    <tr>
+        <th>Relationship</th>
+        <th>Cardinality</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>USER ↔ DOCTOR</td>
+        <td>1:1</td>
+        <td>One user account for one doctor profile</td>
+    </tr>
+    <tr>
+        <td>USER ↔ PATIENT</td>
+        <td>1:1</td>
+        <td>One user account for one patient profile</td>
+    </tr>
+    <tr>
+        <td>PATIENT ↔ APPOINTMENT</td>
+        <td>1:N</td>
+        <td>One patient can have multiple appointments</td>
+    </tr>
+    <tr>
+        <td>DOCTOR ↔ APPOINTMENT</td>
+        <td>1:N</td>
+        <td>One doctor can handle multiple appointments</td>
+    </tr>
+    <tr>
+        <td>APPOINTMENT ↔ TREATMENT</td>
+        <td>1:1</td>
+        <td>One appointment generates one treatment record</td>
+    </tr>
+    <tr>
+        <td>DOCTOR ↔ AVAILABILITY</td>
+        <td>1:N</td>
+        <td>One doctor can have multiple availability slots</td>
+    </tr>
+</table>
+
+<div class="section-divider"></div>
+
+<h1>5. Features Implemented</h1>
+
+<h3>Admin Portal Features</h3>
+<ul class="feature-checklist">
+    <li>Dashboard with real-time statistics</li>
+    <li>Pre-existing admin account (programmatic)</li>
+    <li>CRUD operations for doctors and patients</li>
+    <li>View all appointments (past and upcoming)</li>
+    <li>Advanced search by name/specialization/contact</li>
+    <li>Edit and manage profiles</li>
+    <li>Soft delete/deactivate users</li>
+</ul>
+
+<h3>Doctor Portal Features</h3>
+<ul class="feature-checklist">
+    <li>Dashboard with upcoming appointments</li>
+    <li>Assigned patient list</li>
+    <li>Mark appointments as completed/canceled</li>
+    <li>Set availability for next 7 days</li>
+    <li>Provide diagnosis and prescriptions</li>
+    <li>View complete patient medical history</li>
+    <li>Profile management</li>
+</ul>
+
+<h3>Patient Portal Features</h3>
+<ul class="feature-checklist">
+    <li>Self-registration system</li>
+    <li>Browse doctors by specialization</li>
+    <li>View doctor availability</li>
+    <li>Book and cancel appointments</li>
+    <li>View appointment history</li>
+    <li>Access treatment records</li>
+    <li>Update personal profile</li>
+</ul>
+
+<h3>Optional Features</h3>
+<div class="success-box">
+    <ul class="feature-checklist">
+        <li>Complete REST API with CRUD operations</li>
+        <li>Chart.js data visualizations</li>
+        <li>HTML5 and backend form validation</li>
+        <li>Bootstrap 5.3 responsive design</li>
+        <li>Flask-Login authentication system</li>
+        <li>Soft delete data preservation</li>
+        <li>Advanced search and filtering</li>
+    </ul>
+</div>
+
+<div class="page-break"></div>
+
+<h1>6. API Endpoints Documentation</h1>
+
+<h3>Doctor Endpoints</h3>
+<table>
+    <tr>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Auth</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/api/doctors</td>
+        <td>None</td>
+        <td>Get all active doctors (with filters)</td>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/api/doctors/&lt;id&gt;</td>
+        <td>None</td>
+        <td>Get specific doctor details</td>
+    </tr>
+    <tr>
+        <td>POST</td>
+        <td>/api/doctors</td>
+        <td>Admin</td>
+        <td>Create new doctor profile</td>
+    </tr>
+    <tr>
+        <td>PUT</td>
+        <td>/api/doctors/&lt;id&gt;</td>
+        <td>Admin</td>
+        <td>Update doctor information</td>
+    </tr>
+    <tr>
+        <td>DELETE</td>
+        <td>/api/doctors/&lt;id&gt;</td>
+        <td>Admin</td>
+        <td>Soft delete doctor</td>
+    </tr>
+</table>
+
+<h3>Patient Endpoints</h3>
+<table>
+    <tr>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Auth</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/api/patients</td>
+        <td>Required</td>
+        <td>Get all patients</td>
+    </tr>
+    <tr>
+        <td>POST</td>
+        <td>/api/patients</td>
+        <td>None</td>
+        <td>Register new patient</td>
+    </tr>
+    <tr>
+        <td>PUT</td>
+        <td>/api/patients/&lt;id&gt;</td>
+        <td>Patient/Admin</td>
+        <td>Update patient profile</td>
+    </tr>
+</table>
+
+<h3>Appointment Endpoints</h3>
+<table>
+    <tr>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Auth</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/api/appointments</td>
+        <td>Required</td>
+        <td>Get appointments (with filters)</td>
+    </tr>
+    <tr>
+        <td>POST</td>
+        <td>/api/appointments</td>
+        <td>Required</td>
+        <td>Book new appointment</td>
+    </tr>
+    <tr>
+        <td>PUT</td>
+        <td>/api/appointments/&lt;id&gt;</td>
+        <td>Required</td>
+        <td>Update appointment status</td>
+    </tr>
+    <tr>
+        <td>DELETE</td>
+        <td>/api/appointments/&lt;id&gt;</td>
+        <td>Required</td>
+        <td>Cancel appointment</td>
+    </tr>
+</table>
+
+<h3>Statistics Endpoint</h3>
+<table>
+    <tr>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Auth</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/api/stats</td>
+        <td>Admin</td>
+        <td>Get system statistics</td>
+    </tr>
+</table>
+
+<div class="section-divider"></div>
+
+<h1>7. Setup & Installation</h1>
+
+<h3>Prerequisites</h3>
+<ul>
+    <li>Python 3.8 or higher</li>
+    <li>pip (Python package manager)</li>
+</ul>
+
+<h3>Installation Steps</h3>
+<div class="code-block">
+# 1. Extract project
+unzip hospital_management_system.zip
+cd hospital_management_system
+
+# 2. Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scriptsctivate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Run application
+python app.py
+
+# 5. Access at http://127.0.0.1:5000
+</div>
+
+<h3>Default Credentials</h3>
+<div class="highlight-box">
+    <strong>Admin Account:</strong><br>
+    Username: <code>admin</code><br>
+    Password: <code>admin123</code><br>
+    <em>Note: Created programmatically on first run</em>
+</div>
+
+<div class="page-break"></div>
+
+<h1>8. AI/LLM Usage Disclosure</h1>
+
+<div class="warning-box">
+    <h3>To be filled by student during submission</h3>
+    <p>This section must contain detailed description of AI/LLM assistance used during development:</p>
+    
+    <h4>1. AI Tools Used:</h4>
+    <p>_________________________________________</p>
+    
+    <h4>2. Extent of Use:</h4>
+    <p>_________________________________________</p>
+    
+    <h4>3. Specific Areas:</h4>
+    <ul>
+        <li>☐ Authentication system</li>
+        <li>☐ Database models</li>
+        <li>☐ API endpoints</li>
+        <li>☐ Frontend templates</li>
+        <li>☐ Styling/CSS</li>
+        <li>☐ Documentation</li>
+        <li>☐ None - completed without AI</li>
+    </ul>
+    
+    <h4>4. Percentage of AI contribution:</h4>
+    <p>_____% </p>
+    
+    <h4>5. Declaration:</h4>
+    <p><em>I declare that I have clearly demarcated areas where AI/LLM tools were used. I understand the business logic and can explain all code.</em></p>
+    
+    <p><strong>Student Signature:</strong> _________________</p>
+    <p><strong>Date:</strong> _________________</p>
+</div>
+
+<div class="section-divider"></div>
+
+<h1>9. Video Presentation Link</h1>
+
+<div class="highlight-box">
+    <h3>Video Submission Details</h3>
+    <p><strong>Google Drive Link:</strong> <span class="placeholder">[To be filled by student]</span></p>
+    <p><strong>Access:</strong> Ensure link is set to "Anyone with the link"</p>
+    
+    <h4>Video Requirements:</h4>
+    <ul>
+        <li>Duration: 5-10 minutes</li>
+        <li>Introduction (30 seconds)</li>
+        <li>Problem approach (30 seconds)</li>
+        <li>Key features demo (90 seconds)</li>
+        <li>Optional features (30 seconds)</li>
+    </ul>
+    
+    <h4>Content to Cover:</h4>
+    <ul>
+        <li>Architecture explanation</li>
+        <li>Admin portal walkthrough</li>
+        <li>Doctor portal demonstration</li>
+        <li>Patient portal features</li>
+        <li>API testing (optional)</li>
+        <li>Code highlights</li>
+    </ul>
+</div>
+
+<div class="section-divider"></div>
+
+<h1>10. Conclusion</h1>
+
+<p>This Hospital Management System successfully implements all core requirements and several optional features, providing a comprehensive solution for hospital administration, doctor workflows, and patient care management.</p>
+
+<h3>Key Achievements</h3>
+<ul>
+    <li>Full-stack web development using Flask framework</li>
+    <li>Database design and ORM implementation with SQLAlchemy</li>
+    <li>RESTful API development with proper authentication</li>
+    <li>Role-based access control system</li>
+    <li>Responsive frontend with Bootstrap 5.3</li>
+    <li>Data visualization using Chart.js</li>
+    <li>Modern software engineering practices (MVC, separation of concerns)</li>
+</ul>
+
+<h3>Future Enhancements</h3>
+<ul>
+    <li>Payment gateway integration</li>
+    <li>SMS notifications</li>
+    <li>Telemedicine video consultation</li>
+    <li>Prescription print/download</li>
+    <li>Advanced analytics dashboards</li>
+    <li>Mobile application</li>
+    <li>Multi-hospital support</li>
+    <li>Pharmacy management integration</li>
+</ul>
+
+<div class="footer">
+    <p><strong>Hospital Management System - MAD-1 Project</strong></p>
+    <p>Indian Institute of Technology Madras</p>
+    <p>Modern Application Development - I</p>
+    <p><em>End of Report</em></p>
+</div>
+
+</div>
+
+</body>
+</html>

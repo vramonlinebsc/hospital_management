@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Manage Patients - Admin{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="bi bi-people"></i> Manage Patients</h1>
+            <p class="text-muted">View and manage all patients</p>
+        </div>
+        <a href="{{ url_for('admin.add_patient') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Patient
+        </a>
+    </div>
+    {% if patients.items %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Gender</th>
+                            <th>Blood Group</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients.items %}
+                        <tr>
+                            <td>{{ patient.id }}</td>
+                            <td>{{ patient.full_name }}</td>
+                            <td>{{ patient.contact_number }}</td>
+                            <td>{{ patient.gender or '-' }}</td>
+                            <td>{{ patient.blood_group or '-' }}</td>
+                            <td>
+                                {% if patient.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.view_patient', patient_id=patient.id) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('admin.edit_patient', patient_id=patient.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.delete_patient', patient_id=patient.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No patients found.</div>
+    {% endif %}
+</div>
+{% endblock %}

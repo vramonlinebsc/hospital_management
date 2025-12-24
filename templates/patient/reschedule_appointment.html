@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Reschedule Appointment - Patient{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h4>Reschedule Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p><strong>Current:</strong> {{ appointment.appointment_date|format_date }} at {{
+                            appointment.appointment_time|format_time }}</p>
+                        <p><strong>Doctor:</strong> {{ appointment.doctor.full_name }}</p>
+                    </div>
+                    <form method="POST">
+                        <!-- Calendar picker (shown when available_dates exist) -->
+                        {% if available_dates and available_dates|length > 0 %}
+                        <div id="calendar" class="mb-3"></div>
+                        <style>
+                            #calendar {
+                                max-width: 100%;
+                                margin: 0 0 1rem 0;
+                            }
+
+                            .fc .fc-bg {
+                                background: transparent;
+                            }
+
+                            /* booked (blocked) slots */
+                            .fc-booked {
+                                background-color: rgba(0, 0, 0, 0.12) !important;
+                            }
+                        </style>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                // Build availability background events
+                                var availEvents = [
+                                    {% for a in available_dates %}
+          {
+                                    start: "{{ a.available_date.isoformat() }}T{{ a.start_time.strftime('%H:%M') }}",
+                                    end: "{{ a.available_date.isoformat() }}T{{ a.end_time.strftime('%H:%M') }}",
+                                    display: "background",
+                                    backgroundColor: "#e6f9e9"
+                                }{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+        ];
+
+                            // Booked appointment start times (we will treat each as a 30min block)
+                            var bookedStarts = [
+                                {% for b in booked_appointments %}
+                            "{{ b.appointment_date.isoformat() }}T{{ b.appointment_time.strftime('%H:%M') }}"{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+        ];
+
+                            var slotMinutes = 30; // default slot length used to mark booked blocks
+
+                            // Convert bookedStarts into full events (start + end)
+                            var bookedEvents = bookedStarts.map(function (s) {
+                                var st = new Date(s);
+                                var et = new Date(st.getTime() + slotMinutes * 60000);
+                                return {
+                                    start: st.toISOString().slice(0, 16),
+                                    end: et.toISOString().slice(0, 16),
+                                    display: "background",
+                                    className: "fc-booked"
+                                };
+                            });
+
+                            var allEvents = availEvents.concat(bookedEvents);
+
+                            // Helper: check full containment (used for availability check)
+                            function insideAnyAvailability(startISO, endISO) {
+                                var s = new Date(startISO), e = new Date(endISO);
+                                return availEvents.some(function (ev) {
+                                    var es = new Date(ev.start), ee = new Date(ev.end);
+                                    return s >= es && e <= ee;
+                                });
+                            }
+
+                            // Helper: overlap with any booked event
+                            function overlapsBooked(startISO, endISO) {
+                                var s = new Date(startISO), e = new Date(endISO);
+                                return bookedEvents.some(function (ev) {
+                                    var bs = new Date(ev.start), be = new Date(ev.end);
+                                    // overlap if not (be <= s || bs >= e)
+                                    return !(be <= s || bs >= e);
+                                });
+                            }
+
+                            var calendarEl = document.getElementById('calendar');
+                            var calendar = new FullCalendar.Calendar(calendarEl, {
+                                initialView: 'timeGridWeek',
+                                allDaySlot: false,
+                                slotMinTime: '07:00:00',
+                                slotMaxTime: '20:00:00',
+                                nowIndicator: true,
+                                selectable: true,
+                                selectMirror: true,
+                                height: 'auto',
+                                headerToolbar: {
+                                    left: 'prev,next today',
+                                    center: 'title',
+                                    right: 'timeGridWeek,timeGridDay'
+                                },
+                                events: allEvents,
+                                select: function (info) {
+                                    var startISO = info.startStr;
+                                    var endISO = info.endStr;
+
+                                    // Must be inside availability
+                                    if (!insideAnyAvailability(startISO, endISO)) {
+                                        alert('Please select a time inside doctor availability (green blocks).');
+                                        calendar.unselect();
+                                        return;
+                                    }
+                                    // Must not overlap an existing booked appointment
+                                    if (overlapsBooked(startISO, endISO)) {
+                                        alert('Selected time overlaps an already booked slot. Please choose another time.');
+                                        calendar.unselect();
+                                        return;
+                                    }
+
+                                    // Fill form inputs
+                                    var dateInput = document.querySelector('select[name="appointment_date"], input[name="appointment_date"]');
+                                    var timeInput = document.querySelector('input[name="appointment_time"]');
+                                    if (dateInput) dateInput.value = startISO.split('T')[0];
+                                    if (timeInput) timeInput.value = startISO.split('T')[1].slice(0, 5);
+                                }
+                            });
+
+                            calendar.render();
+      });
+                        </script>
+
+                        <!-- Provide hidden/fallback inputs (date select still shown for accessibility) -->
+                        <div class="mb-3">
+                            <label>New Date *</label>
+                            <select class="form-select" name="appointment_date" required>
+                                {% for avail in available_dates %}
+                                <option value="{{ avail.available_date.isoformat() }}">{{
+                                    avail.available_date.strftime('%A, %d %B %Y') }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>New Time *</label>
+                            <input type="time" class="form-control" name="appointment_time" required>
+                        </div>
+
+                        {% else %}
+                        <!-- Fallback: no available_dates -->
+                        <div class="mb-3">
+                            <label>New Date *</label>
+                            <input type="date" class="form-control" name="appointment_date" required>
+                            <small class="text-muted">No available dates found.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label>New Time *</label>
+                            <input type="time" class="form-control" name="appointment_time" required>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('patient.appointments') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-warning">Reschedule</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

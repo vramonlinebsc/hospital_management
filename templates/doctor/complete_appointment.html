@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% block title %}Complete Appointment - Doctor{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4>Complete Appointment</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="alert alert-info">
+                <p><strong>Patient:</strong> {{ appointment.patient.full_name }}</p>
+                <p><strong>Date:</strong> {{ appointment.appointment_date|format_date }} {{
+                    appointment.appointment_time|format_time }}</p>
+            </div>
+
+            <!-- NEW: Nurse Assignment Section -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="bi bi-person-lines-fill"></i> Nurse Assignment</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Currently assigned:</strong>
+                        {% if appointment.nurse %}
+                        <span class="badge bg-success">{{ appointment.nurse.full_name }}</span>
+                        {% else %}
+                        <span class="text-muted">No nurse assigned</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+
+            <form method="POST">
+
+                <!-- NEW: Nurse Selection with Visual Roster -->
+                <div class="mb-3">
+                    <label class="form-label">Assign Nurse (Optional)</label>
+
+                    <!-- Hidden input to store selected nurse_id -->
+                    <input type="hidden" name="nurse_id" id="selected_nurse_id"
+                        value="{{ appointment.nurse.id if appointment.nurse }}">
+
+                    <!-- Visual Nurse Roster -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <strong>Nurse Availability at {{ appointment.appointment_time|format_time }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                {% for n in available_nurses %}
+                                <div class="col-md-4">
+                                    <div class="nurse-card {% if appointment.nurse and appointment.nurse.id == n.id %}selected{% endif %}"
+                                        data-nurse-id="{{ n.id }}"
+                                        onclick="selectNurse({{ n.id }}, '{{ n.full_name }}')">
+                                        <div class="nurse-card-inner available">
+                                            <i class="bi bi-person-check-fill"></i>
+                                            <strong>{{ n.full_name }}</strong>
+                                            {% if n.department %}<br><small class="text-muted">{{ n.department
+                                                }}</small>{% endif %}
+                                            <div class="status-badge bg-success">Available</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                                {% for n in busy_nurses %}
+                                <div class="col-md-4">
+                                    <div class="nurse-card" data-nurse-id="{{ n.id }}"
+                                        onclick="selectNurse({{ n.id }}, '{{ n.full_name }}', true)">
+                                        <div class="nurse-card-inner busy">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            <strong>{{ n.full_name }}</strong>
+                                            {% if n.department %}<br><small class="text-muted">{{ n.department
+                                                }}</small>{% endif %}
+                                            <div class="status-badge bg-warning">Busy</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                                <!-- Unassign Option -->
+                                <div class="col-md-4">
+                                    <div class="nurse-card" data-nurse-id="" onclick="selectNurse('', 'No Nurse')">
+                                        <div class="nurse-card-inner unassign">
+                                            <i class="bi bi-x-circle"></i>
+                                            <strong>No Nurse</strong>
+                                            <br><small class="text-muted">Unassign</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="selection-indicator" class="alert alert-info mt-3" style="display:none;">
+                                <i class="bi bi-check-circle"></i> Selected: <strong id="selected-nurse-name"></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .nurse-card {
+                        cursor: pointer;
+                        border: 2px solid #dee2e6;
+                        border-radius: 8px;
+                        transition: all 0.3s ease;
+                        height: 100%;
+                    }
+
+                    .nurse-card:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    }
+
+
+                    .nurse-card.selected:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 8px 16px rgba(255, 140, 0, 0.5);
+                    }
+
+
+                    .nurse-card.selected {
+                        border-color: #ff8c00;
+                        background: linear-gradient(135deg, #ffe4b5 0%, #ffd89b 100%);
+                        box-shadow: 0 6px 12px rgba(255, 140, 0, 0.4);
+                        transform: translateY(-5px);
+                    }
+
+                    .nurse-card-inner {
+                        padding: 15px;
+                        text-align: center;
+                        position: relative;
+                        height: 100%;
+                    }
+
+                    .nurse-card-inner.available {
+                        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+                    }
+
+                    .nurse-card-inner.busy {
+                        background: repeating-linear-gradient(45deg,
+                                rgba(255, 165, 0, 0.18) 0,
+                                rgba(255, 165, 0, 0.18) 6px,
+                                rgba(255, 165, 0, 0.05) 6px,
+                                rgba(255, 165, 0, 0.05) 12px);
+                    }
+
+                    .nurse-card-inner.unassign {
+                        background-color: #f8f9fa;
+                        border: 2px dashed #6c757d;
+                    }
+
+                    .nurse-card-inner i {
+                        font-size: 2rem;
+                        display: block;
+                        margin-bottom: 8px;
+                    }
+
+                    .nurse-card-inner.available i {
+                        color: #28a745;
+                    }
+
+                    .nurse-card-inner.busy i {
+                        color: #ffc107;
+                    }
+
+                    .nurse-card-inner.unassign i {
+                        color: #6c757d;
+                    }
+
+                    .status-badge {
+                        position: absolute;
+                        top: 5px;
+                        right: 5px;
+                        padding: 3px 8px;
+                        border-radius: 4px;
+                        font-size: 0.75rem;
+                        color: white;
+                    }
+                </style>
+
+                <script>
+                    function selectNurse(nurseId, nurseName, isBusy = false) {
+                        // Update hidden input
+                        document.getElementById('selected_nurse_id').value = nurseId;
+
+                        // Remove previous selection
+                        document.querySelectorAll('.nurse-card').forEach(card => {
+                            card.classList.remove('selected');
+                        });
+
+                        // Highlight selected card
+                        const selectedCard = document.querySelector(`[data-nurse-id="${nurseId}"]`);
+                        if (selectedCard) {
+                            selectedCard.classList.add('selected');
+                        }
+
+                        // Show selection indicator
+                        const indicator = document.getElementById('selection-indicator');
+                        const nameDisplay = document.getElementById('selected-nurse-name');
+
+                        if (nurseId) {
+                            nameDisplay.textContent = nurseName + (isBusy ? ' (Currently Busy - Override)' : '');
+                            indicator.style.display = 'block';
+                            if (isBusy) {
+                                indicator.className = 'alert alert-warning mt-3';
+                            } else {
+                                indicator.className = 'alert alert-info mt-3';
+                            }
+                        } else {
+                            nameDisplay.textContent = 'No nurse assigned';
+                            indicator.style.display = 'block';
+                            indicator.className = 'alert alert-secondary mt-3';
+                        }
+                    }
+
+                    // Pre-select currently assigned nurse on page load
+                    window.addEventListener('DOMContentLoaded', function () {
+                        const currentNurseId = document.getElementById('selected_nurse_id').value;
+                        if (currentNurseId) {
+                            const currentCard = document.querySelector(`[data-nurse-id="${currentNurseId}"]`);
+                            if (currentCard) {
+                                const nurseName = currentCard.querySelector('strong').textContent;
+                                const isBusy = currentCard.querySelector('.nurse-card-inner').classList.contains('busy');
+                                selectNurse(currentNurseId, nurseName, isBusy);
+                            }
+                        }
+                    });
+                </script>
+
+
+                <div class="mb-3"><label>Diagnosis *</label><textarea class="form-control" name="diagnosis" rows="3"
+                        required>{{ treatment.diagnosis if treatment }}</textarea></div>
+                <div class="mb-3"><label>Prescription</label><textarea class="form-control" name="prescription"
+                        rows="3">{{ treatment.prescription if treatment }}</textarea></div>
+                <div class="mb-3"><label>Tests Recommended</label><textarea class="form-control" name="test_recommended"
+                        rows="2">{{ treatment.test_recommended if treatment }}</textarea>
+                </div>
+                <div class="mb-3"><label>Notes</label><textarea class="form-control" name="notes"
+                        rows="2">{{ treatment.notes if treatment }}</textarea></div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" name="follow_up_required" id="followup" {{ 'checked'
+                        if treatment and treatment.follow_up_required }}>
+                    <label class="form-check-label" for="followup">Follow-up Required</label>
+                </div>
+
+                <!-- Follow-up Date Picker with Calendar -->
+                <div id="followup-section"
+                    style="{% if not treatment or not treatment.follow_up_required %}display:none;{% endif %}">
+                    <div class="mb-3">
+                        <label class="form-label">Follow-up Date & Time</label>
+
+                        <!-- Hidden inputs to store selected date/time -->
+                        <input type="hidden" name="follow_up_date" id="followup_date_input"
+                            value="{{ treatment.follow_up_date.isoformat() if treatment and treatment.follow_up_date }}">
+                        <input type="hidden" name="follow_up_time" id="followup_time_input">
+
+                        <!-- FullCalendar for Follow-up -->
+                        <div id="followup-calendar" class="border rounded" style="height: 500px;"></div>
+
+                        <div id="followup-selection" class="alert alert-info mt-3" style="display:none;">
+                            <i class="bi bi-calendar-check"></i>
+                            <strong>Selected Follow-up:</strong>
+                            <span id="selected-followup-display"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    // Toggle follow-up section visibility
+                    document.getElementById('followup').addEventListener('change', function () {
+                        const section = document.getElementById('followup-section');
+                        section.style.display = this.checked ? 'block' : 'none';
+                    });
+
+                    // Initialize FullCalendar for follow-up scheduling
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const calendarEl = document.getElementById('followup-calendar');
+
+                        // Build availability events (green background)
+                        const availEvents = [
+                            {% for avail in doctor_availability %}
+        {
+                            start: "{{ avail.available_date.isoformat() }}T{{ avail.start_time.strftime('%H:%M') }}",
+                            end: "{{ avail.available_date.isoformat() }}T{{ avail.end_time.strftime('%H:%M') }}",
+                            display: "background",
+                            backgroundColor: "#d4edda"
+                        }{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+    ];
+
+                    // Build existing appointments (orange hatch pattern blocks)
+                    const bookedEvents = [
+                        {% for apt in doctor_appointments %}
+                    {
+                        start: "{{ apt.appointment_date.isoformat() }}T{{ apt.appointment_time.strftime('%H:%M') }}",
+                            title: "Booked",
+                                display: "background",
+                                    backgroundColor: "rgba(255, 165, 0, 0.3)",
+                                        classNames: ['booked-slot']
+                    } {% if not loop.last %}, {% endif %}
+                    {% endfor %}
+    ];
+
+                    const allEvents = availEvents.concat(bookedEvents);
+
+                    const calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'timeGridWeek',
+                        allDaySlot: false,
+                        slotMinTime: '08:00:00',
+                        slotMaxTime: '18:00:00',
+                        nowIndicator: true,
+                        selectable: true,
+                        selectMirror: true,
+                        height: 500,
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'timeGridWeek,timeGridDay'
+                        },
+                        events: allEvents,
+                        select: function (info) {
+                            // Check if selection is within available time
+                            const isAvailable = availEvents.some(ev =>
+                                info.startStr >= ev.start && info.endStr <= ev.end
+                            );
+
+                            if (!isAvailable) {
+                                alert('Please select a time within your available hours (green blocks).');
+                                calendar.unselect();
+                                return;
+                            }
+
+                            // Store selected date/time
+                            const selectedDate = info.startStr.split('T')[0];
+                            const selectedTime = info.startStr.split('T')[1].slice(0, 5);
+
+                            document.getElementById('followup_date_input').value = selectedDate;
+                            document.getElementById('followup_time_input').value = selectedTime;
+
+                            // Display selection
+                            const displayDate = new Date(info.start).toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            });
+                            const displayTime = new Date(info.start).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            document.getElementById('selected-followup-display').textContent =
+                                displayDate + ' at ' + displayTime;
+                            document.getElementById('followup-selection').style.display = 'block';
+                        }
+                    });
+
+                    calendar.render();
+});
+                </script>
+
+                <style>
+                    /* Orange hatch pattern for booked slots */
+                    .fc .booked-slot {
+                        background-image: repeating-linear-gradient(45deg,
+                                rgba(255, 165, 0, 0.3) 0,
+                                rgba(255, 165, 0, 0.3) 6px,
+                                rgba(255, 165, 0, 0.1) 6px,
+                                rgba(255, 165, 0, 0.1) 12px) !important;
+                    }
+                </style>
+                <div class="d-flex justify-content-between"><a href="{{ url_for('doctor.appointments') }}"
+                        class="btn btn-secondary">Cancel</a><button type="submit" class="btn btn-success">Complete
+                        Appointment</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

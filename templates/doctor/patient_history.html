@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Patient History - Doctor{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>{{ patient.full_name }} - Medical History</h2>
+    {% if treatments %}
+    {% for item in treatments %}
+    <div class="card mb-3"><div class="card-header"><strong>{{ item.appointment.appointment_date|format_date }}</strong></div><div class="card-body">
+    <p><strong>Diagnosis:</strong> {{ item.treatment.diagnosis }}</p>
+    {% if item.treatment.prescription %}<p><strong>Prescription:</strong> {{ item.treatment.prescription }}</p>{% endif %}
+    {% if item.treatment.notes %}<p><strong>Notes:</strong> {{ item.treatment.notes }}</p>{% endif %}
+    </div></div>
+    {% endfor %}
+    {% else %}<div class="alert alert-info">No treatment history available.</div>{% endif %}
+</div>
+{% endblock %}

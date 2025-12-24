@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Manage Appointments - Admin{% endblock %}
+{% block content %}
+<div class="container-fluid">
+
+    <h1><i class="bi bi-calendar-check"></i> Manage Appointments</h1>
+
+    <div class="btn-group mb-3" role="group">
+        <a href="{{ url_for('admin.book_appointment') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Book New Appointment
+        </a>
+    </div>
+    <div class="btn-group mb-3" role="group">
+        <a href="{{ url_for('admin.appointments', filter='all') }}"
+            class="btn btn-outline-primary {{ 'active' if filter_type == 'all' }}">All</a>
+        <a href="{{ url_for('admin.appointments', filter='upcoming') }}"
+            class="btn btn-outline-primary {{ 'active' if filter_type == 'upcoming' }}">Upcoming</a>
+        <a href="{{ url_for('admin.appointments', filter='past') }}"
+            class="btn btn-outline-primary {{ 'active' if filter_type == 'past' }}">Past</a>
+    </div>
+    {% if appointments.items %}
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in appointments.items %}
+                    <tr>
+                        <td>{{ apt.id }}</td>
+                        <td>{{ apt.appointment_date|format_date }}</td>
+                        <td>{{ apt.appointment_time|format_time }}</td>
+                        <td>{{ apt.patient.full_name }}</td>
+                        <td>{{ apt.doctor.full_name }}</td>
+                        <td><span
+                                class="badge bg-{{ 'primary' if apt.status == 'Booked' else 'success' if apt.status == 'Completed' else 'danger' }}">{{
+                                apt.status }}</span></td>
+                        <td>
+                        <td>
+                        <td>
+                            <a href="{{ url_for('admin.view_appointment', appointment_id=apt.id) }}"
+                                class="btn btn-sm btn-info">View</a>
+                            {% if apt.status == 'Booked' and apt.appointment_date >= today %}
+                            <a href="{{ url_for('admin.reschedule_appointment', appointment_id=apt.id) }}"
+                                class="btn btn-sm btn-warning">Reschedule</a>
+                            <form method="POST"
+                                action="{{ url_for('admin.cancel_appointment', appointment_id=apt.id) }}"
+                                style="display:inline;"
+                                onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                        </td>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No appointments found.</div>
+    {% endif %}
+</div>
+{% endblock %}

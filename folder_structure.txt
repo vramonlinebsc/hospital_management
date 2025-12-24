@@ -1,0 +1,194 @@
+.
+├── DEPLOYMENT_GUIDE.md
+├── DEPLOYMENT_GUIDE.pdf
+├── DOCUMENTATION_SUMMARY.md
+├── DOCUMENTATION_SUMMARY.pdf
+├── ER_diagram.pdf
+├── FILES_CREATED.md
+├── FILES_CREATED.pdf
+├── PROJECT_SUMMARY.md
+├── PROJECT_SUMMARY.pdf
+├── Project_Report.html
+├── Project_Report.md
+├── Project_Report.pdf
+├── README.md
+├── REPORT_SUMMARY.md
+├── SUBMISSION_CHECKLIST.md
+├── SUBMISSION_CHECKLIST.pdf
+├── TESTING_CHECKLIST.md
+├── TESTING_CHECKLIST.pdf
+├── TROUBLESHOOTING.md
+├── TROUBLESHOOTING.pdf
+├── __pycache__
+│   ├── app.cpython-312.pyc
+│   ├── config.cpython-311.pyc
+│   ├── config.cpython-312.pyc
+│   ├── extensions.cpython-311.pyc
+│   └── extensions.cpython-312.pyc
+├── app.py
+├── check_triage_login.py
+├── config.py
+├── core
+├── create_submission_zip.py
+├── create_triage.py
+├── er_diagram.png
+├── er_diagram_generator.py
+├── extensions.py
+├── folder_structure.txt
+├── hospital.db
+├── hospital.db.bak
+├── models
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── appointment.cpython-311.pyc
+│   │   ├── appointment.cpython-312.pyc
+│   │   ├── doctor.cpython-311.pyc
+│   │   ├── doctor.cpython-312.pyc
+│   │   ├── doctor_availability.cpython-311.pyc
+│   │   ├── doctor_availability.cpython-312.pyc
+│   │   ├── nurse.cpython-312.pyc
+│   │   ├── patient.cpython-311.pyc
+│   │   ├── patient.cpython-312.pyc
+│   │   ├── treatment.cpython-311.pyc
+│   │   ├── treatment.cpython-312.pyc
+│   │   ├── triage.cpython-312.pyc
+│   │   ├── user.cpython-311.pyc
+│   │   └── user.cpython-312.pyc
+│   ├── appointment.py
+│   ├── doctor.py
+│   ├── doctor_availability.py
+│   ├── nurse.py
+│   ├── patient.py
+│   ├── treatment.py
+│   ├── triage.py
+│   └── user.py
+├── modern application development 1 hospital management detailed project report.aux
+├── modern application development 1 hospital management detailed project report.bbl
+├── modern application development 1 hospital management detailed project report.blg
+├── modern application development 1 hospital management detailed project report.lof
+├── modern application development 1 hospital management detailed project report.log
+├── modern application development 1 hospital management detailed project report.lot
+├── modern application development 1 hospital management detailed project report.pdf
+├── modern application development 1 hospital management detailed project report.tex
+├── modern application development 1 hospital management detailed project report.toc
+├── requirements.txt
+├── routes
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── admin.cpython-311.pyc
+│   │   ├── admin.cpython-312.pyc
+│   │   ├── api.cpython-311.pyc
+│   │   ├── api.cpython-312.pyc
+│   │   ├── auth.cpython-311.pyc
+│   │   ├── auth.cpython-312.pyc
+│   │   ├── doctor.cpython-311.pyc
+│   │   ├── doctor.cpython-312.pyc
+│   │   ├── main.cpython-311.pyc
+│   │   ├── main.cpython-312.pyc
+│   │   ├── patient.cpython-311.pyc
+│   │   └── patient.cpython-312.pyc
+│   ├── admin.py
+│   ├── api.py
+│   ├── auth.py
+│   ├── doctor.py
+│   ├── er_digarm.puml
+│   ├── main.py
+│   └── patient.py
+├── static
+│   └── css
+│       └── style.css
+├── templates
+│   ├── about.html
+│   ├── admin
+│   │   ├── add_doctor.html
+│   │   ├── add_nurse.html
+│   │   ├── add_patient.html
+│   │   ├── appointments.html
+│   │   ├── assign_doctor.html
+│   │   ├── dashboard.html
+│   │   ├── doctors.html
+│   │   ├── edit_doctor.html
+│   │   ├── edit_nurse.html
+│   │   ├── edit_patient.html
+│   │   ├── nurses.html
+│   │   ├── patients.html
+│   │   ├── search.html
+│   │   ├── view_appointment.html
+│   │   └── view_patient.html
+│   ├── base.html
+│   ├── create_triage.py
+│   ├── doctor
+│   │   ├── appointments.html
+│   │   ├── availability.html
+│   │   ├── complete_appointment.html
+│   │   ├── dashboard.html
+│   │   ├── patient_history.html
+│   │   ├── patients.html
+│   │   └── profile.html
+│   ├── errors
+│   │   ├── 404.html
+│   │   └── 500.html
+│   ├── login.html
+│   ├── patient
+│   │   ├── appointments.html
+│   │   ├── book_appointment.html
+│   │   ├── dashboard.html
+│   │   ├── doctor_profile.html
+│   │   ├── doctors.html
+│   │   ├── history.html
+│   │   ├── profile.html
+│   │   └── reschedule_appointment.html
+│   └── register.html
+├── utils
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── decorators.cpython-311.pyc
+│   │   ├── decorators.cpython-312.pyc
+│   │   ├── helpers.cpython-311.pyc
+│   │   └── helpers.cpython-312.pyc
+│   ├── decorators.py
+│   └── helpers.py
+└── venv
+    ├── Include
+    │   ├── python3.12
+    │   └── site
+    ├── Lib
+    │   ├── python3.12
+    │   └── site-packages
+    ├── Scripts
+    │   ├── Activate.ps1
+    │   ├── activate
+    │   ├── activate.bat
+    │   ├── deactivate.bat
+    │   ├── dotenv.exe
+    │   ├── email_validator.exe
+    │   ├── flask.exe
+    │   ├── pip.exe
+    │   ├── pip3.11.exe
+    │   ├── pip3.exe
+    │   ├── python.exe
+    │   └── pythonw.exe
+    ├── bin
+    │   ├── Activate.ps1
+    │   ├── activate
+    │   ├── activate.csh
+    │   ├── activate.fish
+    │   ├── dotenv
+    │   ├── email_validator
+    │   ├── flask
+    │   ├── pip
+    │   ├── pip3
+    │   ├── pip3.12
+    │   ├── python -> python3
+    │   ├── python3 -> /usr/bin/python3
+    │   └── python3.12 -> python3
+    ├── lib64 -> lib
+    └── pyvenv.cfg
+
+25 directories, 167 files

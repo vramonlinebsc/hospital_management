@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Find Doctors - Patient{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1><i class="bi bi-person-badge"></i> Find Doctors</h1>
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-4"><select class="form-select" name="specialization">
+                    <option value="">All Specializations</option>{% for spec in specializations %}<option
+                        value="{{ spec }}" {{ 'selected' if spec==selected_specialization }}>{{ spec }}</option>{%
+                    endfor %}
+                </select></div>
+            <div class="col-md-6"><input type="text" class="form-control" name="q" placeholder="Search by name..."
+                    value="{{ search_query }}"></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Search</button></div>
+        </div>
+    </form>
+    {% if doctors %}
+    <div class="row g-3">{% for doctor in doctors %}<div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>{{ doctor.full_name }}</h5>
+                    <p><span class="badge bg-info">{{ doctor.specialization }}</span></p>
+                    <p><small>{{ doctor.qualification }}</small></p>
+                    <p><strong>Experience:</strong> {{ doctor.experience_years }} years</p>
+                    <p><strong>Fee:</strong> ₹{{ doctor.consultation_fee }}</p>
+                    {% set avail = doctor_availability.get(doctor.id, []) %}
+                    {% if avail and avail|length > 0 %}
+                    <p class="text-success"><i class="bi bi-check-circle"></i> Available on:
+                    <ul class="mb-1">
+                        {% for a in avail[:3] %}
+                        <li class="small">{{ a.available_date.strftime('%a, %d %b') }} — {{ a.start_time.strftime('%I:%M
+                            %p') }} to {{ a.end_time.strftime('%I:%M %p') }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% if avail|length > 3 %}
+                    <small class="text-muted">{{ avail|length - 3 }} more days</small>
+                    {% endif %}
+                    </p>
+                    {% else %}
+                    <p class="text-muted">No slots available</p>
+                    {% endif %}
+                    <div class="d-flex gap-2"><a href="{{ url_for('patient.doctor_profile', doctor_id=doctor.id) }}"
+                            class="btn btn-sm btn-outline-primary">View Profile</a>
+                        <a href="{{ url_for('patient.book_appointment', doctor_id=doctor.id) }}"
+                            class="btn btn-sm btn-success">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+        </div>{% endfor %}</div>
+    {% else %}<div class="alert alert-info">No doctors found.</div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Edit Nurse - Admin{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h4>Edit Nurse</h4>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('admin.edit_nurse', nurse_id=nurse.id) }}">
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input class="form-control" name="full_name" value="{{ nurse.full_name }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input class="form-control" name="email" type="email" value="{{ nurse.user.email }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Contact Number</label>
+        <input class="form-control" name="contact_number" value="{{ nurse.contact_number }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Department</label>
+        <input class="form-control" name="department" value="{{ nurse.department }}">
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if nurse.is_active %}checked{% endif %}>
+        <label class="form-check-label" for="is_active">Active</label>
+      </div>
+      <div class="d-flex justify-content-between">
+        <a href="{{ url_for('admin.nurses') }}" class="btn btn-secondary">Cancel</a>
+        <button class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

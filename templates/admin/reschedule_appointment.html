@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Reschedule Appointment - Admin{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Reschedule Appointment</h1>
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p><strong>Patient:</strong> {{ appointment.patient.full_name }}</p>
+                <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.full_name }}</p>
+                <p><strong>Current Date:</strong> {{ appointment.appointment_date|format_date }}</p>
+                <p><strong>Current Time:</strong> {{ appointment.appointment_time|format_time }}</p>
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <label>New Date *</label>
+                    <input type="date" name="appointment_date" class="form-control" 
+                           value="{{ appointment.appointment_date.isoformat() }}" required>
+                </div>
+                <div class="mb-3">
+                    <label>New Time *</label>
+                    <input type="time" name="appointment_time" class="form-control" 
+                           value="{{ appointment.appointment_time.strftime('%H:%M') }}" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Reschedule</button>
+                <a href="{{ url_for('admin.appointments') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

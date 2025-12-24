@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}All Assessments - Triage{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-clipboard-data"></i> All Triage Assessments</h1>
+        <a href="{{ url_for('triage.assess_patient') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Assessment
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <select class="form-select" name="status">
+                    <option value="all" {{ 'selected' if filter_status == 'all' }}>All Status</option>
+                    <option value="Pending" {{ 'selected' if filter_status == 'Pending' }}>Pending</option>
+                    <option value="Assigned" {{ 'selected' if filter_status == 'Assigned' }}>Assigned</option>
+                    <option value="Completed" {{ 'selected' if filter_status == 'Completed' }}>Completed</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="priority">
+                    <option value="all" {{ 'selected' if filter_priority == 'all' }}>All Priorities</option>
+                    <option value="Emergency" {{ 'selected' if filter_priority == 'Emergency' }}>Emergency</option>
+                    <option value="Urgent" {{ 'selected' if filter_priority == 'Urgent' }}>Urgent</option>
+                    <option value="Standard" {{ 'selected' if filter_priority == 'Standard' }}>Standard</option>
+                    <option value="Non-Urgent" {{ 'selected' if filter_priority == 'Non-Urgent' }}>Non-Urgent</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Assessments Table -->
+    {% if assessments %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date/Time</th>
+                            <th>Patient</th>
+                            <th>Complaint</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assessment in assessments %}
+                        <tr>
+                            <td>{{ assessment.id }}</td>
+                            <td>{{ assessment.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ assessment.patient_name }}</td>
+                            <td>{{ assessment.chief_complaint[:40] }}...</td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if assessment.priority_level == 'Emergency' else 'warning' if assessment.priority_level == 'Urgent' else 'primary' if assessment.priority_level == 'Standard' else 'secondary' }}">
+                                    {{ assessment.priority_level }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'warning' if assessment.status == 'Pending' else 'success' if assessment.status == 'Assigned' else 'info' }}">
+                                    {{ assessment.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if assessment.assigned_doctor %}
+                                Dr. {{ assessment.assigned_doctor.full_name }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if assessment.status == 'Pending' %}
+                                <a href="{{ url_for('triage.assign_doctor', assessment_id=assessment.id) }}" class="btn btn-sm btn-success">
+                                    Assign
+                                </a>
+                                {% elif assessment.appointment %}
+                                <a href="{{ url_for('admin.view_appointment', appointment_id=assessment.appointment.id) }}" class="btn btn-sm btn-info">
+                                    View Apt
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No assessments found matching the filters.</div>
+    {% endif %}
+</div>
+{% endblock %}

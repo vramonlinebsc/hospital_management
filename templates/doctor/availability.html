@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Set Availability - Doctor{% endblock %}
+{% block content %}
+<div class="container">
+    <h1><i class="bi bi-clock"></i> Set Availability (Next 7 Days)</h1>
+    <form method="POST"><div class="row g-3">
+    {% for data in availability_data %}
+    <div class="col-md-12"><div class="card"><div class="card-body">
+    <div class="form-check mb-2"><input type="checkbox" class="form-check-input" name="available_{{ data.date.isoformat() }}" id="avail_{{ loop.index }}" {{ 'checked' if data.availability }}>
+    <label class="form-check-label" for="avail_{{ loop.index }}"><strong>{{ data.date.strftime('%A, %d %B %Y') }}</strong></label></div>
+    <div class="row"><div class="col-md-6"><label>Start Time</label><input type="time" class="form-control" name="start_time_{{ data.date.isoformat() }}" value="{{ data.availability.start_time.strftime('%H:%M') if data.availability else '09:00' }}"></div>
+    <div class="col-md-6"><label>End Time</label><input type="time" class="form-control" name="end_time_{{ data.date.isoformat() }}" value="{{ data.availability.end_time.strftime('%H:%M') if data.availability else '17:00' }}"></div></div>
+    </div></div></div>
+    {% endfor %}
+    </div><button type="submit" class="btn btn-primary mt-3">Update Availability</button></form>
+</div>
+{% endblock %}

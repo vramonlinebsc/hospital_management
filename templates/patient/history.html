@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Medical History - Patient{% endblock %}
+{% block content %}
+<div class="container">
+    <h1><i class="bi bi-file-medical"></i> Medical History</h1>
+    {% if history_data %}
+    {% for item in history_data %}<div class="card mb-3"><div class="card-header"><strong>{{ item.appointment.appointment_date|format_date }}</strong> - Dr. {{ item.appointment.doctor.full_name }}</div>
+    <div class="card-body"><p><strong>Diagnosis:</strong> {{ item.treatment.diagnosis }}</p>
+    {% if item.treatment.prescription %}<p><strong>Prescription:</strong> {{ item.treatment.prescription }}</p>{% endif %}
+    {% if item.treatment.test_recommended %}<p><strong>Tests:</strong> {{ item.treatment.test_recommended }}</p>{% endif %}
+    {% if item.treatment.notes %}<p><strong>Notes:</strong> {{ item.treatment.notes }}</p>{% endif %}
+    </div></div>{% endfor %}
+    {% else %}<div class="alert alert-info">No medical history available.</div>{% endif %}
+</div>
+{% endblock %}

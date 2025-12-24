@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Hospital Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card.doctors { border-left-color: #0d6efd; }
+    .stat-card.patients { border-left-color: #198754; }
+    .stat-card.appointments { border-left-color: #ffc107; }
+    .stat-card.today { border-left-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+            <p class="text-muted">Hospital Management Overview</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card doctors shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Doctors</h6>
+                            <h2 class="mb-0">{{ total_doctors }}</h2>
+                        </div>
+                        <div class="text-primary">
+                            <i class="bi bi-person-badge" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('admin.doctors') }}" class="btn btn-sm btn-outline-primary mt-3">View All</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card patients shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Patients</h6>
+                            <h2 class="mb-0">{{ total_patients }}</h2>
+                        </div>
+                        <div class="text-success">
+                            <i class="bi bi-people" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('admin.patients') }}" class="btn btn-sm btn-outline-success mt-3">View All</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card appointments shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Appointments</h6>
+                            <h2 class="mb-0">{{ total_appointments }}</h2>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-calendar-check" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('admin.appointments') }}" class="btn btn-sm btn-outline-warning mt-3">View All</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card today shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Today's Appointments</h6>
+                            <h2 class="mb-0">{{ today_appointments }}</h2>
+                        </div>
+                        <div class="text-danger">
+                            <i class="bi bi-calendar-event" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('admin.appointments', filter='today') }}" class="btn btn-sm btn-outline-danger mt-3">View Today</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Appointments by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Top Doctors by Appointments</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="doctorChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments & Recent Patients -->
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-clock"></i> Upcoming Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in upcoming_appointments %}
+                                <tr>
+                                    <td>{{ appointment.appointment_date|format_date }}</td>
+                                    <td>{{ appointment.appointment_time|format_time }}</td>
+                                    <td>{{ appointment.patient.full_name }}</td>
+                                    <td>{{ appointment.doctor.full_name }}</td>
+                                    <td><span class="badge bg-primary">{{ appointment.status }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No upcoming appointments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-person-plus"></i> Recent Patients</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_patients %}
+                    <div class="list-group list-group-flush">
+                        {% for patient in recent_patients %}
+                        <a href="{{ url_for('admin.view_patient', patient_id=patient.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-circle fs-4 me-3 text-primary"></i>
+                                <div>
+                                    <h6 class="mb-0">{{ patient.full_name }}</h6>
+                                    <small class="text-muted">{{ patient.contact_number }}</small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No recent patients</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Appointments by Status Chart
+var statusCtx = document.getElementById('statusChart').getContext('2d');
+var statusChart = new Chart(statusCtx, {
+    type: 'pie',
+    data: {
+        labels: [{% for status, count in status_stats %}'{{ status }}',{% endfor %}],
+        datasets: [{
+            data: [{% for status, count in status_stats %}{{ count }},{% endfor %}],
+            backgroundColor: [
+                '#0d6efd',
+                '#198754',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Doctors by Appointments Chart
+var doctorCtx = document.getElementById('doctorChart').getContext('2d');
+var doctorChart = new Chart(doctorCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for name, count in doctor_stats %}'{{ name }}',{% endfor %}],
+        datasets: [{
+            label: 'Appointments',
+            data: [{% for name, count in doctor_stats %}{{ count }},{% endfor %}],
+            backgroundColor: '#198754'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
